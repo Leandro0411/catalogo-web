@@ -1,0 +1,9 @@
+{
+  "slug": "demo",
+  "name": "Tienda Demo",
+  "primaryColor": "#2563EB",
+  "whatsapp": "5490000000001",
+  "currency": "ARS",
+  "ageGate": false,
+  "noindex": true
+}

@@ -1,0 +1,18 @@
+# Normalizar line endings: LF en el repo, en todos los archivos de texto
+* text=auto eol=lf
+
+# Los binarios se declaran explícitamente — NUNCA deben pasar por la normalización
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.pdf  binary
+*.zip  binary
+*.woff binary
+*.woff2 binary
+*.ttf  binary
+*.eot  binary
+*.mp4  binary
+*.xlsx binary
+*.docx binary

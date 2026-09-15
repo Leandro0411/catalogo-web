@@ -1,0 +1,10 @@
+@import 'tailwindcss';
+
+@theme inline {
+  --color-brand: var(--brand);
+  --color-brand-contrast: var(--brand-contrast);
+}
+
+body {
+  @apply bg-white text-gray-900;
+}

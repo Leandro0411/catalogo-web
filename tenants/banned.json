@@ -1,0 +1,9 @@
+{
+  "slug": "banned",
+  "name": "BANNED",
+  "primaryColor": "#111111",
+  "whatsapp": "5490000000000",
+  "currency": "ARS",
+  "ageGate": true,
+  "noindex": true
+}
