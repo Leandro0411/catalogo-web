@@ -1,8 +1,13 @@
+import { createExecutionContext, env, waitOnExecutionContext } from 'cloudflare:test';
+import { hashPassword } from '../../shared/crypto/password';
 import { newId } from '../lib/ids';
-import type { CategoryRow, ProductRow, TenantRow } from '../repositories/row.types';
+import worker from '../index';
+import type { AdminUserRow, CategoryRow, ProductRow, TenantRow } from '../repositories/row.types';
 
 export async function resetCatalogTables(db: D1Database): Promise<void> {
   await db.batch([
+    db.prepare('DELETE FROM sessions'),
+    db.prepare('DELETE FROM admin_users'),
     db.prepare('DELETE FROM products'),
     db.prepare('DELETE FROM categories'),
     db.prepare('DELETE FROM tenants'),
@@ -95,6 +100,63 @@ export async function insertCategory(
     .run();
 
   return row;
+}
+
+export async function insertAdmin(
+  db: D1Database,
+  input: { tenantId: string; username: string; password: string },
+): Promise<AdminUserRow> {
+  const passwordHash = await hashPassword(input.password);
+  const now = new Date().toISOString();
+  const row: AdminUserRow = {
+    id: newId(),
+    tenant_id: input.tenantId,
+    username: input.username,
+    password_hash: passwordHash,
+    failed_attempts: 0,
+    locked_until: null,
+    created_at: now,
+    updated_at: now,
+  };
+
+  await db
+    .prepare(
+      `INSERT INTO admin_users
+        (id, tenant_id, username, password_hash, failed_attempts, locked_until, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    )
+    .bind(
+      row.id,
+      row.tenant_id,
+      row.username,
+      row.password_hash,
+      row.failed_attempts,
+      row.locked_until,
+      row.created_at,
+      row.updated_at,
+    )
+    .run();
+
+  return row;
+}
+
+const LOCAL_ORIGIN_HEADERS = { Origin: 'http://localhost', Host: 'localhost' };
+
+export async function loginAs(username: string, password: string): Promise<string> {
+  const ctx = createExecutionContext();
+  const response = await worker.fetch(
+    new Request('http://localhost/api/admin/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...LOCAL_ORIGIN_HEADERS },
+      body: JSON.stringify({ username, password }),
+    }),
+    env,
+    ctx,
+  );
+  await waitOnExecutionContext(ctx);
+
+  const setCookie = response.headers.get('Set-Cookie') ?? '';
+  return setCookie.split(';')[0] ?? '';
 }
 
 export async function insertProduct(

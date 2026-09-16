@@ -47,3 +47,13 @@ export interface PublicCatalogResponse {
   categories: PublicCategory[];
   products: PublicProduct[];
 }
+
+export interface AdminMeResponse {
+  username: string;
+  tenant: {
+    slug: string;
+    name: string;
+    primaryColor: string;
+    currency: Currency;
+  };
+}

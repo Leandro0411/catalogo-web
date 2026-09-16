@@ -1,4 +1,7 @@
 import { spawnSync } from 'node:child_process';
+import { writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { D1_DATABASE_NAME } from './constants';
 
 const IS_WINDOWS = process.platform === 'win32';
@@ -19,9 +22,12 @@ export function d1ExecuteFile(file: string, target: 'local' | 'remote'): void {
 }
 
 export function d1Query<T>(sql: string, target: 'local' | 'remote'): T[] {
+  const tempFile = join(tmpdir(), `d1-query-${crypto.randomUUID()}.sql`);
+  writeFileSync(tempFile, sql, 'utf-8');
+
   const result = spawnSync(
     'npx',
-    ['wrangler', 'd1', 'execute', D1_DATABASE_NAME, `--${target}`, '--command', sql, '--json'],
+    ['wrangler', 'd1', 'execute', D1_DATABASE_NAME, `--${target}`, '--file', tempFile, '--json'],
     { encoding: 'utf-8', shell: IS_WINDOWS },
   );
 

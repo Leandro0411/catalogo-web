@@ -17,26 +17,30 @@ El repo usa `legacy-peer-deps=true` (ver [.npmrc](.npmrc)): el resolver estricto
 
 ## Comandos
 
-| Comando                                              | Qué hace                                                                        |
-| ---------------------------------------------------- | ------------------------------------------------------------------------------- |
-| `npm run dev`                                        | Levanta Vite + el Worker (workerd) en local con hot reload.                     |
-| `npm run build`                                      | Typecheck de los tres proyectos y build de producción (SPA + Worker).           |
-| `npm run deploy`                                     | Build y despliegue a Cloudflare Workers.                                        |
-| `npm run typecheck`                                  | `tsc -b` sobre `tsconfig.app/worker/node.json`.                                 |
-| `npm run lint`                                       | ESLint sobre todo el repo.                                                      |
-| `npm run format` / `format:check`                    | Prettier (escribe / solo verifica).                                             |
-| `npm test`                                           | Corre `test:unit` y `test:worker`.                                              |
-| `npm run test:unit`                                  | Vitest (jsdom) para `src/shared`, `src/web` y `scripts`.                        |
-| `npm run test:worker`                                | Vitest sobre el Worker real (`@cloudflare/vitest-pool-workers`, D1/KV locales). |
-| `npm run db:migrate:local` / `db:migrate:remote`     | Aplica las migraciones de `migrations/` a D1 local o remota.                    |
-| `npm run cf-typegen`                                 | Regenera `worker-configuration.d.ts` a partir de `wrangler.jsonc`.              |
-| `npm run tenant -- upsert <archivo.json> [--remote]` | Da de alta o actualiza un tenant desde un JSON de `tenants/`.                   |
+| Comando                                                                              | Qué hace                                                                                      |
+| ------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------- |
+| `npm run dev`                                                                        | Levanta Vite + el Worker (workerd) en local con hot reload.                                   |
+| `npm run build`                                                                      | Typecheck de los tres proyectos y build de producción (SPA + Worker).                         |
+| `npm run deploy`                                                                     | Build y despliegue a Cloudflare Workers.                                                      |
+| `npm run typecheck`                                                                  | `tsc -b` sobre `tsconfig.app/worker/node.json`.                                               |
+| `npm run lint`                                                                       | ESLint sobre todo el repo.                                                                    |
+| `npm run format` / `format:check`                                                    | Prettier (escribe / solo verifica).                                                           |
+| `npm test`                                                                           | Corre `test:unit` y `test:worker`.                                                            |
+| `npm run test:unit`                                                                  | Vitest (jsdom) para `src/shared`, `src/web` y `scripts`.                                      |
+| `npm run test:worker`                                                                | Vitest sobre el Worker real (`@cloudflare/vitest-pool-workers`, D1/KV locales).               |
+| `npm run db:migrate:local` / `db:migrate:remote`                                     | Aplica las migraciones de `migrations/` a D1 local o remota.                                  |
+| `npm run cf-typegen`                                                                 | Regenera `worker-configuration.d.ts` a partir de `wrangler.jsonc`.                            |
+| `npm run tenant -- upsert <archivo.json> [--remote]`                                 | Da de alta o actualiza un tenant desde un JSON de `tenants/`.                                 |
+| `npm run seed:dev`                                                                   | Carga tenants + categorías + productos de prueba en D1 local (solo local).                    |
+| `npm run admin -- create --tenant <slug> --username <u> [--password <p>] [--remote]` | Crea un administrador. Sin `--password` genera una clave aleatoria (se imprime una sola vez). |
+| `npm run admin -- reset-password --username <u> [--password <p>] [--remote]`         | Resetea la contraseña de un administrador y cierra sus sesiones activas.                      |
 
 ## Arranque local
 
 ```bash
 npm run db:migrate:local
 npm run tenant -- upsert tenants/banned.json
+npm run admin -- create --tenant banned --username <tu-usuario>
 npm run dev
 ```
 
@@ -63,7 +67,10 @@ Pasos manuales (una sola vez por cuenta de Cloudflare):
 2. Crear la base D1: `npx wrangler d1 create catalogo-db`, y copiar el `database_id` devuelto en `wrangler.jsonc` (reemplazar `REEMPLAZAR_CON_ID_REAL`).
 3. Aplicar las migraciones en remoto: `npm run db:migrate:remote`.
 4. Dar de alta el tenant BANNED en remoto: `npm run tenant -- upsert tenants/banned.json --remote`.
-5. Desplegar: `npm run deploy`. Si Cloudflare lo pide, registrar el subdominio `workers.dev` la primera vez.
+5. Crear el administrador del tenant: `npm run admin -- create --tenant banned --username <usuario> --remote` (guardar la contraseña que imprime, no se vuelve a mostrar).
+6. Desplegar: `npm run deploy`. Si Cloudflare lo pide, registrar el subdominio `workers.dev` la primera vez.
+
+El panel de administración queda en `/admin` (redirige a `/admin/login` si no hay sesión).
 
 ### URL pública
 

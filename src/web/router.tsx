@@ -5,9 +5,11 @@ import { TenantLayout } from './features/tenant/TenantLayout';
 import { CatalogPage } from './features/catalog/pages/CatalogPage';
 import { ProductPage } from './features/catalog/pages/ProductPage';
 import { CartPage } from './features/cart/pages/CartPage';
+import { adminRoutes } from './features/admin/admin-routes';
 
 export const router = createBrowserRouter([
   { path: '/', element: <HomePage /> },
+  ...adminRoutes,
   {
     path: '/:slug',
     element: <TenantLayout />,

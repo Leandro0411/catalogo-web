@@ -11,3 +11,5 @@ export const STOCK_MODES = ['availability', 'unit', 'quantity'] as const;
 export const MAX_QTY_PER_LINE = 50;
 
 export const MAX_CART_LINES = 30;
+
+export const PBKDF2_ITERATIONS = 100_000;

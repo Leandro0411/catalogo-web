@@ -21,7 +21,8 @@
     "db:migrate:remote": "wrangler d1 migrations apply catalogo-db --remote",
     "cf-typegen": "wrangler types",
     "tenant": "tsx scripts/tenant.ts",
-    "seed:dev": "tsx scripts/seed-dev.ts"
+    "seed:dev": "tsx scripts/seed-dev.ts",
+    "admin": "tsx scripts/admin.ts"
   },
   "dependencies": {
     "hono": "^4.13.7",
