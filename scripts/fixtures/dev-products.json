@@ -1,0 +1,56 @@
+[
+  {
+    "tenantSlug": "banned",
+    "categoryKey": "vapes",
+    "name": "THE BLACK SHEEP",
+    "priceCents": 2600000,
+    "currency": "ARS",
+    "stockMode": "availability",
+    "status": "active",
+    "attributes": { "puffs": 30000 },
+    "choices": [
+      { "value": "Grape / Strawberry Kiwi 🍇🍓🥝", "available": true },
+      { "value": "Watermelon Ice 🍉🧊", "available": true },
+      { "value": "Peach Mango 🍑🥭", "available": false }
+    ]
+  },
+  {
+    "tenantSlug": "banned",
+    "categoryKey": "vapes",
+    "name": "NIGHT RIDER",
+    "priceCents": 2400000,
+    "currency": "ARS",
+    "stockMode": "availability",
+    "status": "paused",
+    "attributes": { "puffs": 20000 },
+    "choices": [
+      { "value": "Blue Razz ❄️", "available": true },
+      { "value": "Mango Tango 🥭", "available": false }
+    ]
+  },
+  {
+    "tenantSlug": "banned",
+    "categoryKey": "vapes",
+    "name": "GHOST",
+    "priceCents": 2200000,
+    "currency": "ARS",
+    "stockMode": "availability",
+    "status": "active",
+    "attributes": { "puffs": 15000 },
+    "choices": [
+      { "value": "Mint 🌿", "available": false },
+      { "value": "Vanilla 🍦", "available": false }
+    ]
+  },
+  {
+    "tenantSlug": "demo",
+    "categoryKey": "general",
+    "name": "Producto Demo",
+    "priceCents": 100000,
+    "currency": "ARS",
+    "stockMode": "availability",
+    "status": "active",
+    "attributes": {},
+    "choices": []
+  }
+]

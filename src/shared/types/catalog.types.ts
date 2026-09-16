@@ -1,21 +1,23 @@
-export type StockMode = 'availability' | 'unit' | 'quantity';
+import type { z } from 'zod';
+import type { ATTRIBUTE_FILTERS, ATTRIBUTE_TYPES, STOCK_MODES } from '../constants';
+import type {
+  attributeDefSchema,
+  categoryConfigSchema,
+  choiceSchema,
+} from '../schemas/catalog.schema';
+
+export type StockMode = (typeof STOCK_MODES)[number];
 
 export type ProductStatus = 'active' | 'paused' | 'sold';
 
-export type AttributeType = 'text' | 'number' | 'enum';
+export type AttributeType = (typeof ATTRIBUTE_TYPES)[number];
 
-export interface AttributeDef {
-  key: string;
-  label: string;
-  type: AttributeType;
-  unit?: string;
-  options?: string[];
-  required?: boolean;
-  filter?: 'multi' | 'min' | 'max';
-  showInCard?: boolean;
-}
+export type AttributeFilter = (typeof ATTRIBUTE_FILTERS)[number];
 
-export interface Choice {
-  value: string;
-  available: boolean;
-}
+export type AttributeDef = z.infer<typeof attributeDefSchema>;
+
+export type Choice = z.infer<typeof choiceSchema>;
+
+export type CategoryConfig = z.infer<typeof categoryConfigSchema>;
+
+export type HiddenReason = 'PAUSED' | 'SOLD' | 'OUT_OF_STOCK' | 'NO_CHOICES_AVAILABLE';

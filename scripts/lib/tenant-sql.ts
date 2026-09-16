@@ -1,4 +1,5 @@
 import type { TenantConfig } from '../../src/shared/types/tenant.types';
+import { buildCategoryUpsertSql } from './category-sql';
 import { sqlValue } from './sql';
 
 export function buildTenantUpsertSql(config: TenantConfig, id: string): string {
@@ -35,4 +36,14 @@ ON CONFLICT(slug) DO UPDATE SET
   noindex = excluded.noindex,
   is_active = excluded.is_active,
   updated_at = datetime('now');`;
+}
+
+export function buildTenantWithCategoriesSql(config: TenantConfig, tenantId: string): string {
+  const statements = [buildTenantUpsertSql(config, tenantId)];
+
+  for (const category of config.categories) {
+    statements.push(buildCategoryUpsertSql(config.slug, category, crypto.randomUUID()));
+  }
+
+  return statements.join('\n');
 }

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { CURRENCIES, RESERVED_SLUGS } from '../constants';
+import { categoryConfigSchema } from './catalog.schema';
 
 export const slugSchema = z
   .string()
@@ -17,4 +18,5 @@ export const tenantConfigSchema = z.object({
   ageGate: z.boolean(),
   noindex: z.boolean(),
   isActive: z.boolean().default(true),
+  categories: z.array(categoryConfigSchema).default([]),
 });

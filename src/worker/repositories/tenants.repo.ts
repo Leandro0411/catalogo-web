@@ -11,3 +11,7 @@ export async function findActiveTenantBySlug(
 
   return row ?? null;
 }
+
+export function findActiveTenantStmt(db: D1Database, slug: string): D1PreparedStatement {
+  return db.prepare('SELECT * FROM tenants WHERE slug = ? AND is_active = 1').bind(slug);
+}

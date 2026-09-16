@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { parseArgs } from 'node:util';
 import { tenantConfigSchema } from '../src/shared/schemas/tenant.schema';
-import { buildTenantUpsertSql } from './lib/tenant-sql';
+import { buildTenantWithCategoriesSql } from './lib/tenant-sql';
 import { d1ExecuteFile } from './lib/wrangler';
 
 function upsert(filePath: string, target: 'local' | 'remote'): void {
@@ -19,7 +19,7 @@ function upsert(filePath: string, target: 'local' | 'remote'): void {
   }
 
   const id = crypto.randomUUID();
-  const sql = buildTenantUpsertSql(parsed.data, id);
+  const sql = buildTenantWithCategoriesSql(parsed.data, id);
   const tempFile = join(tmpdir(), `tenant-upsert-${id}.sql`);
   writeFileSync(tempFile, sql, 'utf-8');
   d1ExecuteFile(tempFile, target);

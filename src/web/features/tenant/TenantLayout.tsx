@@ -1,14 +1,18 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Outlet, useParams } from 'react-router';
 import { useCatalog } from '../catalog/hooks/useCatalog';
 import { TenantContext } from './tenant-context';
 import { brandStyle } from '../../shared/theme';
 import { Spinner } from '../../shared/components/Spinner';
 import { NotFoundPage } from './NotFoundPage';
+import { AgeGate } from '../catalog/components/AgeGate';
+import { safeGet, safeSet } from '../../shared/storage';
+import { ageOkKey } from '../../shared/storage-keys';
 
 export function TenantLayout() {
   const { slug } = useParams<{ slug: string }>();
   const catalog = useCatalog(slug ?? '');
+  const [, forceRerender] = useState(0);
 
   useEffect(() => {
     if (catalog.status === 'ready') {
@@ -39,10 +43,25 @@ export function TenantLayout() {
     );
   }
 
+  const { tenant } = catalog.data;
+  const ageAccepted = slug ? safeGet(ageOkKey(slug)) === '1' : false;
+
+  if (tenant.ageGate && !ageAccepted) {
+    return (
+      <AgeGate
+        primaryColor={tenant.primaryColor}
+        onAccept={() => {
+          safeSet(ageOkKey(slug ?? ''), '1');
+          forceRerender((tick) => tick + 1);
+        }}
+      />
+    );
+  }
+
   return (
-    <div style={brandStyle(catalog.data.tenant.primaryColor)}>
+    <div style={brandStyle(tenant.primaryColor)}>
       <header className="bg-brand text-brand-contrast p-4">
-        <h1 className="text-lg font-bold">{catalog.data.tenant.name}</h1>
+        <h1 className="text-lg font-bold">{tenant.name}</h1>
       </header>
       <TenantContext.Provider value={{ catalog: catalog.data, reload: catalog.reload }}>
         <Outlet />

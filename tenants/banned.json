@@ -5,5 +5,25 @@
   "whatsapp": "5490000000000",
   "currency": "ARS",
   "ageGate": true,
-  "noindex": true
+  "noindex": true,
+  "categories": [
+    {
+      "key": "vapes",
+      "name": "Vapes",
+      "sortOrder": 0,
+      "choiceLabel": "Sabor",
+      "defaultStockMode": "availability",
+      "defaultCurrency": "ARS",
+      "attributeSchema": [
+        {
+          "key": "puffs",
+          "label": "Puffs",
+          "type": "number",
+          "unit": "puffs",
+          "required": true,
+          "showInCard": true
+        }
+      ]
+    }
+  ]
 }

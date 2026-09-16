@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { TenantLayout } from './TenantLayout';
 
@@ -25,9 +26,11 @@ describe('TenantLayout', () => {
 
   afterEach(() => {
     vi.unstubAllGlobals();
+    localStorage.clear();
   });
 
-  it('muestra la marca del tenant al cargar el catálogo (BANNED)', async () => {
+  it('muestra la marca del tenant tras aceptar el aviso +18 (BANNED)', async () => {
+    const user = userEvent.setup();
     vi.mocked(fetch).mockResolvedValue(
       new Response(
         JSON.stringify({
@@ -48,6 +51,8 @@ describe('TenantLayout', () => {
     );
 
     renderAt('banned');
+
+    await user.click(await screen.findByRole('button', { name: /soy mayor de 18/i }));
 
     expect(await screen.findByText('BANNED')).toBeInTheDocument();
     await waitFor(() => expect(document.title).toBe('BANNED'));

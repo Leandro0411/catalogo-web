@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { TenantConfig } from '../../src/shared/types/tenant.types';
-import { buildTenantUpsertSql } from './tenant-sql';
+import { buildTenantUpsertSql, buildTenantWithCategoriesSql } from './tenant-sql';
 
 const bannedConfig: TenantConfig = {
   slug: 'banned',
@@ -11,6 +11,17 @@ const bannedConfig: TenantConfig = {
   ageGate: true,
   noindex: true,
   isActive: true,
+  categories: [
+    {
+      key: 'vapes',
+      name: 'Vapes',
+      sortOrder: 0,
+      attributeSchema: [{ key: 'puffs', label: 'Puffs', type: 'number', unit: 'puffs' }],
+      choiceLabel: 'Sabor',
+      defaultStockMode: 'availability',
+      defaultCurrency: 'ARS',
+    },
+  ],
 };
 
 describe('buildTenantUpsertSql', () => {
@@ -30,5 +41,22 @@ describe('buildTenantUpsertSql', () => {
 
     expect(sql).toContain('ON CONFLICT(slug) DO UPDATE SET');
     expect(sql).toContain("updated_at = datetime('now')");
+  });
+});
+
+describe('buildTenantWithCategoriesSql', () => {
+  it('incluye el upsert del tenant y de cada una de sus categorías', () => {
+    const sql = buildTenantWithCategoriesSql(bannedConfig, 'fixed-id');
+
+    expect(sql).toContain('INSERT INTO tenants');
+    expect(sql).toContain('INSERT INTO categories');
+    expect(sql).toContain("'vapes'");
+  });
+
+  it('no genera categorías si el tenant no tiene ninguna', () => {
+    const sql = buildTenantWithCategoriesSql({ ...bannedConfig, categories: [] }, 'fixed-id');
+
+    expect(sql).toContain('INSERT INTO tenants');
+    expect(sql).not.toContain('INSERT INTO categories');
   });
 });
