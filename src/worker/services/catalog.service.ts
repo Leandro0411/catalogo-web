@@ -1,24 +1,21 @@
-import { z } from 'zod';
-import { attributeDefSchema, choiceSchema } from '../../shared/schemas/catalog.schema';
 import { isPubliclyVisible } from '../../shared/domain/visibility';
 import { ApiError } from '../lib/errors';
-import { parseJsonColumn } from '../lib/json';
 import { findActiveTenantStmt } from '../repositories/tenants.repo';
 import { listCategoriesStmt } from '../repositories/categories.repo';
 import { listPublicProductsStmt } from '../repositories/products.repo';
+import {
+  parseCategoryRow,
+  parseProductRow,
+  toPublicCategory,
+  toPublicProduct,
+} from './product-mappers';
 import type { CategoryRow, ProductRow, TenantRow } from '../repositories/row.types';
 import type {
   PublicCatalogResponse,
-  PublicCategory,
   PublicProduct,
   PublicTenant,
 } from '../../shared/types/api.types';
-import type { Choice, ProductStatus, StockMode } from '../../shared/types/catalog.types';
 import type { Currency } from '../../shared/types/tenant.types';
-
-const attributeSchemaArraySchema = z.array(attributeDefSchema);
-const choicesArraySchema = z.array(choiceSchema);
-const attributesRecordSchema = z.record(z.string(), z.union([z.string(), z.number()]));
 
 function toPublicTenant(row: TenantRow): PublicTenant {
   return {
@@ -29,35 +26,6 @@ function toPublicTenant(row: TenantRow): PublicTenant {
     whatsapp: row.whatsapp,
     currency: row.currency as Currency,
     ageGate: row.age_gate === 1,
-  };
-}
-
-function toPublicCategory(row: CategoryRow): PublicCategory {
-  return {
-    key: row.key,
-    name: row.name,
-    sortOrder: row.sort_order,
-    attributeSchema: parseJsonColumn(row.attribute_schema, attributeSchemaArraySchema, []),
-    choiceLabel: row.choice_label,
-  };
-}
-
-function toPublicProduct(row: ProductRow, category: CategoryRow, choices: Choice[]): PublicProduct {
-  return {
-    id: row.id,
-    categoryKey: category.key,
-    name: row.name,
-    description: row.description,
-    image: row.image_key
-      ? { thumb: `/img/${row.image_key}-480`, full: `/img/${row.image_key}-1200` }
-      : null,
-    priceCents: row.price_cents,
-    currency: row.currency as Currency,
-    priceNote: row.price_note,
-    stockMode: row.stock_mode as StockMode,
-    stockQty: row.stock_qty,
-    attributes: parseJsonColumn(row.attributes, attributesRecordSchema, {}),
-    choices: choices.filter((choice) => choice.available).map((choice) => choice.value),
   };
 }
 
@@ -77,37 +45,36 @@ export async function getPublicCatalog(
     throw new ApiError(404, 'TENANT_NOT_FOUND', 'Catálogo no encontrado');
   }
 
-  const categoryRows = categoriesResult.results as CategoryRow[];
+  const categories = (categoriesResult.results as CategoryRow[]).map(parseCategoryRow);
+  const categoryById = new Map(categories.map((category) => [category.id, category]));
   const productRows = productsResult.results as ProductRow[];
-  const categoryById = new Map(categoryRows.map((category) => [category.id, category]));
 
-  const products: PublicProduct[] = [];
+  const products = productRows
+    .map(parseProductRow)
+    .map((product) => {
+      const category = categoryById.get(product.categoryId);
 
-  for (const product of productRows) {
-    const category = categoryById.get(product.category_id);
-    if (!category) {
-      continue;
-    }
+      if (!category) {
+        return null;
+      }
 
-    const choices = parseJsonColumn(product.choices, choicesArraySchema, []);
-    const visible = isPubliclyVisible(
-      {
-        status: product.status as ProductStatus,
-        stockMode: product.stock_mode as StockMode,
-        stockQty: product.stock_qty,
-        choices,
-      },
-      { choiceLabel: category.choice_label },
-    );
+      const visible = isPubliclyVisible(
+        {
+          status: product.status,
+          stockMode: product.stockMode,
+          stockQty: product.stockQty,
+          choices: product.choices,
+        },
+        { choiceLabel: category.choiceLabel },
+      );
 
-    if (visible) {
-      products.push(toPublicProduct(product, category, choices));
-    }
-  }
+      return visible ? toPublicProduct(product, category.key) : null;
+    })
+    .filter((product): product is PublicProduct => product !== null);
 
   return {
     tenant: toPublicTenant(tenantRow),
-    categories: categoryRows.map(toPublicCategory),
+    categories: categories.map(toPublicCategory),
     products,
   };
 }

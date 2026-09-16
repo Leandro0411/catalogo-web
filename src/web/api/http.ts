@@ -5,6 +5,7 @@ export class HttpError extends Error {
     readonly status: number,
     readonly code: string,
     message: string,
+    readonly details?: unknown,
   ) {
     super(message);
   }
@@ -15,7 +16,7 @@ export async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> 
 
   if (!response.ok) {
     const body = (await response.json()) as ApiErrorBody;
-    throw new HttpError(response.status, body.error.code, body.error.message);
+    throw new HttpError(response.status, body.error.code, body.error.message, body.error.details);
   }
 
   if (response.status === 204) {

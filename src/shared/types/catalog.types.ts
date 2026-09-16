@@ -1,5 +1,10 @@
 import type { z } from 'zod';
-import type { ATTRIBUTE_FILTERS, ATTRIBUTE_TYPES, STOCK_MODES } from '../constants';
+import type {
+  ATTRIBUTE_FILTERS,
+  ATTRIBUTE_TYPES,
+  PRODUCT_STATUSES,
+  STOCK_MODES,
+} from '../constants';
 import type {
   attributeDefSchema,
   categoryConfigSchema,
@@ -8,7 +13,7 @@ import type {
 
 export type StockMode = (typeof STOCK_MODES)[number];
 
-export type ProductStatus = 'active' | 'paused' | 'sold';
+export type ProductStatus = (typeof PRODUCT_STATUSES)[number];
 
 export type AttributeType = (typeof ATTRIBUTE_TYPES)[number];
 

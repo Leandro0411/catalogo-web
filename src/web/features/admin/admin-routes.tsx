@@ -18,8 +18,22 @@ export const adminRoutes: RouteObject[] = [
       {
         index: true,
         lazy: async () => {
-          const { AdminHomePage } = await import('./pages/AdminHomePage');
-          return { Component: AdminHomePage };
+          const { ProductsPage } = await import('./pages/ProductsPage');
+          return { Component: ProductsPage };
+        },
+      },
+      {
+        path: 'productos/nuevo',
+        lazy: async () => {
+          const { ProductFormPage } = await import('./pages/ProductFormPage');
+          return { Component: ProductFormPage };
+        },
+      },
+      {
+        path: 'productos/:id',
+        lazy: async () => {
+          const { ProductFormPage } = await import('./pages/ProductFormPage');
+          return { Component: ProductFormPage };
         },
       },
     ],

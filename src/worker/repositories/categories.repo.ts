@@ -21,3 +21,16 @@ export async function listCategoriesByTenant(
 
   return result.results;
 }
+
+export async function findCategoryForTenant(
+  db: D1Database,
+  tenantId: string,
+  categoryId: string,
+): Promise<CategoryRow | null> {
+  const row = await db
+    .prepare('SELECT * FROM categories WHERE id = ? AND tenant_id = ?')
+    .bind(categoryId, tenantId)
+    .first<CategoryRow>();
+
+  return row ?? null;
+}

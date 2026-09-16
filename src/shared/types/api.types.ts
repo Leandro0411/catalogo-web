@@ -1,5 +1,7 @@
-import type { AttributeDef, StockMode } from './catalog.types';
+import type { z } from 'zod';
+import type { AttributeDef, Choice, HiddenReason, ProductStatus, StockMode } from './catalog.types';
 import type { Currency } from './tenant.types';
+import type { productInputSchema } from '../schemas/product.schema';
 
 export interface ApiErrorBody {
   error: {
@@ -57,3 +59,35 @@ export interface AdminMeResponse {
     currency: Currency;
   };
 }
+
+export interface AdminCategory {
+  id: string;
+  key: string;
+  name: string;
+  sortOrder: number;
+  attributeSchema: AttributeDef[];
+  choiceLabel: string | null;
+  defaultStockMode: StockMode;
+  defaultCurrency: Currency | null;
+}
+
+export interface AdminProduct {
+  id: string;
+  categoryId: string;
+  categoryKey: string;
+  name: string;
+  description: string | null;
+  imageKey: string | null;
+  priceCents: number;
+  currency: Currency;
+  priceNote: string | null;
+  stockMode: StockMode;
+  stockQty: number | null;
+  status: ProductStatus;
+  attributes: Record<string, string | number>;
+  choices: Choice[];
+  hiddenReason: HiddenReason | null;
+  updatedAt: string;
+}
+
+export type ProductInput = z.infer<typeof productInputSchema>;

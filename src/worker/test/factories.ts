@@ -72,7 +72,7 @@ export async function insertCategory(
     name: 'Vapes',
     sort_order: 0,
     attribute_schema: JSON.stringify([
-      { key: 'puffs', label: 'Puffs', type: 'number', unit: 'puffs' },
+      { key: 'puffs', label: 'Puffs', type: 'number', unit: 'puffs', required: true },
     ]),
     choice_label: 'Sabor',
     default_stock_mode: 'availability',
