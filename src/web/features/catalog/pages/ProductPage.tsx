@@ -3,9 +3,10 @@ import { useTenant } from '../../tenant/tenant-context';
 import { formatMoney } from '../../../../shared/domain/money';
 import { ProductAttributes } from '../components/ProductAttributes';
 import { productImageUrl } from '../lib/product-image';
+import { AddToCart } from '../../cart/components/AddToCart';
 
 export function ProductPage() {
-  const { productId } = useParams<{ productId: string }>();
+  const { slug, productId } = useParams<{ slug: string; productId: string }>();
   const { catalog } = useTenant();
   const product = catalog.products.find((item) => item.id === productId);
 
@@ -42,16 +43,7 @@ export function ProductPage() {
         />
       ) : null}
       {product.description ? <p>{product.description}</p> : null}
-      {category?.choiceLabel && product.choices.length > 0 ? (
-        <div>
-          <h2 className="font-semibold">{category.choiceLabel}</h2>
-          <ul className="list-inside list-disc">
-            {product.choices.map((choice) => (
-              <li key={choice}>{choice}</li>
-            ))}
-          </ul>
-        </div>
-      ) : null}
+      <AddToCart slug={slug ?? ''} product={product} category={category} />
     </div>
   );
 }

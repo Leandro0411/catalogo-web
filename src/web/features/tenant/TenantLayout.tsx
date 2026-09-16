@@ -6,6 +6,7 @@ import { brandStyle } from '../../shared/theme';
 import { Spinner } from '../../shared/components/Spinner';
 import { NotFoundPage } from './NotFoundPage';
 import { AgeGate } from '../catalog/components/AgeGate';
+import { CartButton } from '../cart/components/CartButton';
 import { safeGet, safeSet } from '../../shared/storage';
 import { ageOkKey } from '../../shared/storage-keys';
 
@@ -60,8 +61,9 @@ export function TenantLayout() {
 
   return (
     <div style={brandStyle(tenant.primaryColor)}>
-      <header className="bg-brand text-brand-contrast p-4">
+      <header className="bg-brand text-brand-contrast flex items-center justify-between p-4">
         <h1 className="text-lg font-bold">{tenant.name}</h1>
+        <CartButton slug={slug ?? ''} />
       </header>
       <TenantContext.Provider value={{ catalog: catalog.data, reload: catalog.reload }}>
         <Outlet />
