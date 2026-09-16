@@ -119,6 +119,19 @@ export async function updateProductStatus(
     .run();
 }
 
+export async function countProductsByImageKey(
+  db: D1Database,
+  tenantId: string,
+  imageKey: string,
+): Promise<number> {
+  const row = await db
+    .prepare('SELECT COUNT(*) AS count FROM products WHERE tenant_id = ? AND image_key = ?')
+    .bind(tenantId, imageKey)
+    .first<{ count: number }>();
+
+  return row?.count ?? 0;
+}
+
 export async function deleteProductForTenant(
   db: D1Database,
   tenantId: string,

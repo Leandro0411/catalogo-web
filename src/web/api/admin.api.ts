@@ -62,3 +62,11 @@ export function setProductStatus(id: string, status: ProductStatus): Promise<Adm
 export function deleteProduct(id: string): Promise<void> {
   return fetchJson<void>(`/api/admin/products/${id}`, { method: 'DELETE' });
 }
+
+export function uploadProductImage(thumb: Blob, full: Blob): Promise<{ imageKey: string }> {
+  const form = new FormData();
+  form.append('thumb', thumb, 'thumb');
+  form.append('full', full, 'full');
+
+  return fetchJson<{ imageKey: string }>('/api/admin/images', { method: 'POST', body: form });
+}

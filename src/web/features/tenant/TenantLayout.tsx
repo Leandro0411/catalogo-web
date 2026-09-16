@@ -51,6 +51,8 @@ export function TenantLayout() {
     return (
       <AgeGate
         primaryColor={tenant.primaryColor}
+        tenantName={tenant.name}
+        logoUrl={tenant.logoUrl}
         onAccept={() => {
           safeSet(ageOkKey(slug ?? ''), '1');
           forceRerender((tick) => tick + 1);
@@ -62,7 +64,12 @@ export function TenantLayout() {
   return (
     <div style={brandStyle(tenant.primaryColor)}>
       <header className="bg-brand text-brand-contrast flex items-center justify-between p-4">
-        <h1 className="text-lg font-bold">{tenant.name}</h1>
+        <div className="flex items-center gap-2">
+          {tenant.logoUrl ? (
+            <img src={tenant.logoUrl} alt="" className="h-8 w-8 rounded object-cover" />
+          ) : null}
+          <h1 className="text-lg font-bold">{tenant.name}</h1>
+        </div>
         <CartButton slug={slug ?? ''} />
       </header>
       <TenantContext.Provider value={{ catalog: catalog.data, reload: catalog.reload }}>

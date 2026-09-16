@@ -15,3 +15,9 @@ export const MAX_QTY_PER_LINE = 50;
 export const MAX_CART_LINES = 30;
 
 export const PBKDF2_ITERATIONS = 100_000;
+
+export const IMAGE_SIZES = { thumb: 480, full: 1200 } as const;
+
+export const MAX_IMAGE_BYTES = 1_048_576;
+
+export const MAX_LOGO_BYTES = 307_200;

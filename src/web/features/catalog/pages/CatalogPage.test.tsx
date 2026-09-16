@@ -124,6 +124,10 @@ describe('CatalogPage', () => {
     expect(await screen.findByText('THE BLACK SHEEP')).toBeInTheDocument();
     expect(screen.getByText('$26.000')).toBeInTheDocument();
     expect(screen.getByText('30.000 puffs')).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'THE BLACK SHEEP' })).toHaveAttribute(
+      'src',
+      '/placeholder.svg',
+    );
     expect(localStorage.getItem('cat:age-ok:banned')).toBe('1');
   });
 
@@ -145,5 +149,26 @@ describe('CatalogPage', () => {
     renderCatalogAt('demo');
 
     expect(await screen.findByText('Producto Demo')).toBeInTheDocument();
+  });
+
+  it('con un producto con foto, la tarjeta usa /img/<key>-480 con carga diferida (AC01 con foto)', async () => {
+    const response = demoCatalogResponse();
+    const body = await response.clone().json();
+    body.products[0].image = {
+      thumb: '/img/t/tenant/abc-480',
+      full: '/img/t/tenant/abc-1200',
+    };
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(JSON.stringify(body), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    );
+
+    renderCatalogAt('demo');
+
+    const image = await screen.findByRole('img', { name: 'Producto Demo' });
+    expect(image).toHaveAttribute('src', '/img/t/tenant/abc-480');
+    expect(image).toHaveAttribute('loading', 'lazy');
   });
 });

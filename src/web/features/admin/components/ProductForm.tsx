@@ -4,6 +4,7 @@ import { emptyFormState, formStateFromProduct, toProductInput } from '../lib/pro
 import type { ProductFormErrors, ProductFormState } from '../lib/product-form';
 import { AttributeField } from './AttributeField';
 import { ChoicesEditor } from './ChoicesEditor';
+import { ImagePicker } from './ImagePicker';
 import { Switch } from './Switch';
 import { HttpError } from '../../../api/http';
 import { CURRENCIES } from '../../../../shared/constants';
@@ -38,6 +39,7 @@ export function ProductForm({
   );
   const [errors, setErrors] = useState<ProductFormErrors>({});
   const [submitting, setSubmitting] = useState(false);
+  const [imageBusy, setImageBusy] = useState(false);
 
   const category = categories.find((item) => item.id === state.categoryId) ?? initialCategory;
 
@@ -55,6 +57,7 @@ export function ProductForm({
       priceNote: prev.priceNote,
       description: prev.description,
       status: prev.status,
+      imageKey: prev.imageKey,
     }));
     setErrors({});
   };
@@ -197,14 +200,18 @@ export function ProductForm({
         <span>Disponible</span>
       </div>
 
-      <p className="text-sm text-gray-500">Foto: disponible próximamente</p>
+      <ImagePicker
+        imageKey={state.imageKey}
+        onChange={(imageKey) => setState((prev) => ({ ...prev, imageKey }))}
+        onBusyChange={setImageBusy}
+      />
 
       {errors.general ? <p className="text-sm text-red-600">{errors.general}</p> : null}
 
       <div className="flex gap-2">
         <button
           type="submit"
-          disabled={submitting}
+          disabled={submitting || imageBusy}
           className="rounded bg-gray-900 px-4 py-2 text-white disabled:opacity-40"
         >
           Guardar

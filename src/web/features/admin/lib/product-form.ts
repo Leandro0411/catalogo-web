@@ -17,6 +17,7 @@ export interface ProductFormState {
   status: ProductStatus;
   stockMode: StockMode;
   stockQty: string;
+  imageKey: string | null;
 }
 
 export interface ProductFormErrors {
@@ -53,6 +54,7 @@ export function emptyFormState(
     status: 'active',
     stockMode: category.defaultStockMode,
     stockQty: '',
+    imageKey: null,
   };
 }
 
@@ -75,6 +77,7 @@ export function formStateFromProduct(product: AdminProduct): ProductFormState {
     status: product.status,
     stockMode: product.stockMode,
     stockQty: product.stockQty !== null ? String(product.stockQty) : '',
+    imageKey: product.imageKey,
   };
 }
 
@@ -108,7 +111,7 @@ export function toProductInput(
     categoryId: state.categoryId,
     name: state.name,
     description: state.description.trim() === '' ? null : state.description,
-    imageKey: null,
+    imageKey: state.imageKey,
     priceCents,
     currency: state.currency,
     priceNote: state.priceNote.trim() === '' ? null : state.priceNote,

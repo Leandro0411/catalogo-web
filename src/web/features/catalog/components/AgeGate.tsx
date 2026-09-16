@@ -3,10 +3,12 @@ import { brandStyle } from '../../../shared/theme';
 
 interface AgeGateProps {
   primaryColor: string;
+  tenantName: string;
+  logoUrl: string | null;
   onAccept: () => void;
 }
 
-export function AgeGate({ primaryColor, onAccept }: AgeGateProps) {
+export function AgeGate({ primaryColor, tenantName, logoUrl, onAccept }: AgeGateProps) {
   const [rejected, setRejected] = useState(false);
 
   if (rejected) {
@@ -25,6 +27,10 @@ export function AgeGate({ primaryColor, onAccept }: AgeGateProps) {
       style={brandStyle(primaryColor)}
       className="bg-brand text-brand-contrast flex min-h-screen flex-col items-center justify-center gap-6 p-8 text-center"
     >
+      <div className="flex items-center gap-2">
+        {logoUrl ? <img src={logoUrl} alt="" className="h-8 w-8 rounded object-cover" /> : null}
+        <span className="text-lg font-bold">{tenantName}</span>
+      </div>
       <p className="text-lg">Este catálogo es solo para mayores de 18 años. ¿Sos mayor de edad?</p>
       <div className="flex gap-4">
         <button

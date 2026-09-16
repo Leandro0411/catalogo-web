@@ -21,6 +21,34 @@ export function d1ExecuteFile(file: string, target: 'local' | 'remote'): void {
   runWrangler(['d1', 'execute', D1_DATABASE_NAME, `--${target}`, '--file', file]);
 }
 
+export function kvPutFile(
+  key: string,
+  filePath: string,
+  contentType: string,
+  target: 'local' | 'remote',
+): void {
+  const metadataJson = JSON.stringify({ contentType });
+  const metadataArg = IS_WINDOWS ? metadataJson.replace(/"/g, '\\"') : metadataJson;
+
+  runWrangler([
+    'kv',
+    'key',
+    'put',
+    key,
+    '--binding',
+    'IMAGES',
+    '--path',
+    filePath,
+    '--metadata',
+    metadataArg,
+    `--${target}`,
+  ]);
+}
+
+export function kvDelete(key: string, target: 'local' | 'remote'): void {
+  runWrangler(['kv', 'key', 'delete', key, '--binding', 'IMAGES', `--${target}`]);
+}
+
 export function d1Query<T>(sql: string, target: 'local' | 'remote'): T[] {
   const tempFile = join(tmpdir(), `d1-query-${crypto.randomUUID()}.sql`);
   writeFileSync(tempFile, sql, 'utf-8');

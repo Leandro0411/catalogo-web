@@ -4,6 +4,8 @@ import { noStore } from './middleware/no-store';
 import { publicRoutes } from './routes/public.routes';
 import { adminAuthRoutes } from './routes/admin-auth.routes';
 import { adminProductsRoutes } from './routes/admin-products.routes';
+import { adminImagesRoutes } from './routes/admin-images.routes';
+import { imagesRoutes } from './routes/images.routes';
 import { errorHandler } from './lib/errors';
 import type { AppEnv } from './lib/hono-env.types';
 import type { ApiErrorBody } from '../shared/types/api.types';
@@ -16,6 +18,8 @@ export function createApp() {
   app.route('/api/public', publicRoutes);
   app.route('/api/admin', adminAuthRoutes);
   app.route('/api/admin', adminProductsRoutes);
+  app.route('/api/admin', adminImagesRoutes);
+  app.route('/', imagesRoutes);
 
   app.notFound((c) => {
     if (c.req.path.startsWith('/api/')) {

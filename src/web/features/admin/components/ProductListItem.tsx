@@ -31,7 +31,11 @@ export function ProductListItem({
 
   return (
     <div className="flex items-center gap-3 border-b py-3">
-      <img src="/placeholder.svg" alt="" className="h-12 w-12 rounded object-cover" />
+      <img
+        src={product.imageKey ? `/img/${product.imageKey}-480` : '/placeholder.svg'}
+        alt=""
+        className="h-12 w-12 rounded object-cover"
+      />
       <div className="min-w-0 flex-1">
         <p className="truncate font-semibold">{product.name}</p>
         <p className="text-sm text-gray-600">{formatMoney(product.priceCents, product.currency)}</p>
