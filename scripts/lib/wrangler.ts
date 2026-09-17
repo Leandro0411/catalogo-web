@@ -1,7 +1,4 @@
 import { spawnSync } from 'node:child_process';
-import { writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
 import { D1_DATABASE_NAME } from './constants';
 
 const IS_WINDOWS = process.platform === 'win32';
@@ -50,19 +47,31 @@ export function kvDelete(key: string, target: 'local' | 'remote'): void {
 }
 
 export function d1Query<T>(sql: string, target: 'local' | 'remote'): T[] {
-  const tempFile = join(tmpdir(), `d1-query-${crypto.randomUUID()}.sql`);
-  writeFileSync(tempFile, sql, 'utf-8');
-
-  const result = spawnSync(
-    'npx',
-    ['wrangler', 'd1', 'execute', D1_DATABASE_NAME, `--${target}`, '--file', tempFile, '--json'],
-    { encoding: 'utf-8', shell: IS_WINDOWS },
-  );
+  // --file contra --remote sube el .sql y devuelve estadísticas de ejecución,
+  // no las filas; --command sí devuelve las filas del SELECT. En Windows, pasar
+  // el --command como argumento de un array pierde las comillas en cmd.exe
+  // (se tokeniza por espacios), así que armamos la línea completa nosotros.
+  const result = IS_WINDOWS
+    ? spawnSync(
+        `npx wrangler d1 execute ${D1_DATABASE_NAME} --${target} --command "${sql.replace(/"/g, '\\"')}" --json`,
+        { encoding: 'utf-8', shell: true },
+      )
+    : spawnSync(
+        'npx',
+        ['wrangler', 'd1', 'execute', D1_DATABASE_NAME, `--${target}`, '--command', sql, '--json'],
+        { encoding: 'utf-8' },
+      );
 
   if (result.status !== 0) {
     throw new Error(`wrangler d1 execute terminó con código ${result.status}: ${result.stderr}`);
   }
 
-  const parsed = JSON.parse(result.stdout) as Array<{ results: T[] }>;
+  const jsonStart = result.stdout.indexOf('[');
+
+  if (jsonStart === -1) {
+    throw new Error(`wrangler d1 execute no devolvió JSON: ${result.stdout}`);
+  }
+
+  const parsed = JSON.parse(result.stdout.slice(jsonStart)) as Array<{ results: T[] }>;
   return parsed[0]?.results ?? [];
 }

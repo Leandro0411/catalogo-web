@@ -12,14 +12,14 @@
     {
       "binding": "DB",
       "database_name": "catalogo-db",
-      "database_id": "REEMPLAZAR_CON_ID_REAL",
+      "database_id": "98e61034-0f0e-4928-b9e0-8fd08edf57d9",
       "migrations_dir": "migrations",
     },
   ],
   "kv_namespaces": [
     {
       "binding": "IMAGES",
-      "id": "REEMPLAZAR_CON_ID_REAL",
+      "id": "aff25c4d4b724efb8084ddb1d962b69b",
     },
   ],
   "observability": {
