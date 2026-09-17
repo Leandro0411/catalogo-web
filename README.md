@@ -64,13 +64,16 @@ Detalle completo de capas y convenciones en el [Mapa del Sistema](docs/specs/ARQ
 Pasos manuales (una sola vez por cuenta de Cloudflare):
 
 1. Crear una cuenta gratuita en [cloudflare.com](https://cloudflare.com) y ejecutar `npx wrangler login`.
-2. Crear la base D1: `npx wrangler d1 create catalogo-db`, y copiar el `database_id` devuelto en `wrangler.jsonc` (reemplazar `REEMPLAZAR_CON_ID_REAL`).
-3. Aplicar las migraciones en remoto: `npm run db:migrate:remote`.
-4. Dar de alta el tenant BANNED en remoto: `npm run tenant -- upsert tenants/banned.json --remote`.
-5. Crear el administrador del tenant: `npm run admin -- create --tenant banned --username <usuario> --remote` (guardar la contraseña que imprime, no se vuelve a mostrar).
-6. Desplegar: `npm run deploy`. Si Cloudflare lo pide, registrar el subdominio `workers.dev` la primera vez.
+2. Crear la base D1: `npx wrangler d1 create catalogo-db`, y copiar el `database_id` devuelto en `wrangler.jsonc` (reemplazar `REEMPLAZAR_CON_ID_REAL` en `d1_databases`).
+3. Crear el namespace KV de imágenes: `npx wrangler kv namespace create catalogo-images`, y copiar el `id` devuelto en `wrangler.jsonc` (reemplazar `REEMPLAZAR_CON_ID_REAL` en `kv_namespaces`).
+4. Aplicar las migraciones en remoto: `npm run db:migrate:remote`.
+5. Dar de alta el tenant BANNED en remoto, con su logo: `npm run tenant -- upsert tenants/banned.json --logo <ruta-del-logo> --remote` (PNG, JPG o WebP, máximo 300 KB).
+6. Crear el administrador del tenant: `npm run admin -- create --tenant banned --username <usuario> --remote` (guardar la contraseña que imprime, no se vuelve a mostrar).
+7. Desplegar: `npm run deploy`. Si Cloudflare lo pide, registrar el subdominio `workers.dev` la primera vez.
 
 El panel de administración queda en `/admin` (redirige a `/admin/login` si no hay sesión).
+
+Para operar el sistema ya desplegado (backups, restauración, rollback, alta de admins y tenants, diagnóstico), ver el [Runbook](docs/RUNBOOK.md). Los riesgos aceptados del proyecto están documentados en la [sección 5 del análisis del arquitecto](docs/specs/CATALOGO_ARQUITECTO_v1.0.md#5-riesgos-identificados).
 
 ### URL pública
 
