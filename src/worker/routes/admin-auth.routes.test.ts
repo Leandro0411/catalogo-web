@@ -9,7 +9,13 @@ interface ErrorBody {
 
 interface MeBody {
   username: string;
-  tenant: { slug: string; name: string; primaryColor: string; currency: string };
+  tenant: {
+    slug: string;
+    name: string;
+    primaryColor: string;
+    logoUrl: string | null;
+    currency: string;
+  };
 }
 
 const ORIGIN_HEADERS = { Origin: 'http://localhost', Host: 'localhost' };
@@ -171,7 +177,11 @@ describe('GET /api/admin/me', () => {
   });
 
   it('devuelve el tenant propio de cada admin logueado (AC05)', async () => {
-    const banned = await insertTenant(env.DB, { slug: 'banned', name: 'BANNED' });
+    const banned = await insertTenant(env.DB, {
+      slug: 'banned',
+      name: 'BANNED',
+      logo_key: 't/tenant-banned/logo-1',
+    });
     const demo = await insertTenant(env.DB, { slug: 'demo', name: 'Tienda Demo' });
     await insertAdmin(env.DB, {
       tenantId: banned.id,
@@ -190,7 +200,9 @@ describe('GET /api/admin/me', () => {
     const demoBody = (await demoMe.json()) as MeBody;
 
     expect(bannedBody.tenant.slug).toBe('banned');
+    expect(bannedBody.tenant.logoUrl).toBe('/img/t/tenant-banned/logo-1');
     expect(demoBody.tenant.slug).toBe('demo');
+    expect(demoBody.tenant.logoUrl).toBeNull();
   });
 
   it('devuelve 401 UNAUTHENTICATED sin cookie, con token aleatorio o con sesión vencida (E10)', async () => {

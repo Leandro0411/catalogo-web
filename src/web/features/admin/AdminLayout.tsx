@@ -26,8 +26,17 @@ export function AdminLayout() {
   return (
     <div style={brandStyle(session.me.tenant.primaryColor)}>
       <header className="bg-brand text-brand-contrast flex items-center justify-between p-4">
-        <h1 className="text-lg font-bold">{session.me.tenant.name}</h1>
-        <button type="button" onClick={handleLogout} className="underline">
+        <div className="flex items-center gap-2">
+          {session.me.tenant.logoUrl ? (
+            <img src={session.me.tenant.logoUrl} alt="" className="h-8 w-8 rounded object-cover" />
+          ) : null}
+          <h1 className="text-lg font-bold">{session.me.tenant.name}</h1>
+        </div>
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="rounded border border-current px-3 py-1.5 text-sm"
+        >
           Salir
         </button>
       </header>

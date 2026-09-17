@@ -10,7 +10,13 @@ import type { AdminCategory, AdminProduct } from '../../../../shared/types/api.t
 const adminValue: AdminContextValue = {
   me: {
     username: 'leandro',
-    tenant: { slug: 'banned', name: 'BANNED', primaryColor: '#000000', currency: 'ARS' },
+    tenant: {
+      slug: 'banned',
+      name: 'BANNED',
+      primaryColor: '#000000',
+      logoUrl: null,
+      currency: 'ARS',
+    },
   },
   refresh: () => {},
 };

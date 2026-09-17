@@ -8,6 +8,7 @@ export interface SessionWithAdminRow {
   tenant_name: string;
   primary_color: string;
   currency: string;
+  logo_key: string | null;
 }
 
 export async function insertSession(
@@ -35,7 +36,8 @@ export async function findSessionWithAdmin(
          t.slug AS tenant_slug,
          t.name AS tenant_name,
          t.primary_color AS primary_color,
-         t.currency AS currency
+         t.currency AS currency,
+         t.logo_key AS logo_key
        FROM sessions s
        JOIN admin_users a ON a.id = s.admin_user_id
        JOIN tenants t ON t.id = s.tenant_id

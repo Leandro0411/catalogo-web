@@ -47,6 +47,7 @@ adminAuthRoutes.get('/me', requireAdmin, (c) => {
       slug: admin.tenantSlug,
       name: admin.tenantName,
       primaryColor: admin.primaryColor,
+      logoUrl: admin.logoUrl,
       currency: admin.currency,
     },
   };

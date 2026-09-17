@@ -114,6 +114,7 @@ export async function getAdminContext(
     tenantSlug: row.tenant_slug,
     tenantName: row.tenant_name,
     primaryColor: row.primary_color,
+    logoUrl: row.logo_key ? `/img/${row.logo_key}` : null,
     currency: row.currency as Currency,
   };
 }

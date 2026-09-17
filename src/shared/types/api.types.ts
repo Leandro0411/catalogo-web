@@ -56,6 +56,7 @@ export interface AdminMeResponse {
     slug: string;
     name: string;
     primaryColor: string;
+    logoUrl: string | null;
     currency: Currency;
   };
 }

@@ -7,6 +7,7 @@ export interface AdminContext {
   tenantSlug: string;
   tenantName: string;
   primaryColor: string;
+  logoUrl: string | null;
   currency: Currency;
 }
 
