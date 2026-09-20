@@ -1,8 +1,11 @@
+import { useParams } from 'react-router';
 import { useTenant } from '../../tenant/tenant-context';
 import { ProductCard } from '../components/ProductCard';
+import { CartBar } from '../../cart/components/CartBar';
 import { EmptyState } from '../../../shared/components/EmptyState';
 
 export function CatalogPage() {
+  const { slug } = useParams<{ slug: string }>();
   const { catalog } = useTenant();
 
   if (catalog.products.length === 0) {
@@ -18,13 +21,16 @@ export function CatalogPage() {
   });
 
   return (
-    <div className="grid grid-cols-2 gap-4 p-4 md:grid-cols-3 lg:grid-cols-4">
-      {sortedProducts.map((product) => {
-        const category = categoriesByKey.get(product.categoryKey);
-        return category ? (
-          <ProductCard key={product.id} product={product} category={category} />
-        ) : null;
-      })}
-    </div>
+    <>
+      <div className="mx-auto grid max-w-3xl grid-cols-2 gap-x-3 gap-y-7 px-4 pt-5 pb-28 md:grid-cols-3 md:gap-x-5 lg:grid-cols-4">
+        {sortedProducts.map((product) => {
+          const category = categoriesByKey.get(product.categoryKey);
+          return category ? (
+            <ProductCard key={product.id} product={product} category={category} />
+          ) : null;
+        })}
+      </div>
+      <CartBar slug={slug ?? ''} catalog={catalog} />
+    </>
   );
 }

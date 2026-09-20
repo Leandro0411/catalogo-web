@@ -12,9 +12,12 @@ export function ProductPage() {
 
   if (!product) {
     return (
-      <div className="flex flex-col items-center gap-4 p-8 text-center">
-        <p>Producto no disponible</p>
-        <Link to=".." className="underline">
+      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-3 px-8 text-center">
+        <p className="text-base font-semibold">Producto no disponible</p>
+        <Link
+          to=".."
+          className="rounded-full bg-gray-900 px-6 py-3 text-sm font-semibold text-white transition active:scale-[0.98]"
+        >
           Volver al catálogo
         </Link>
       </div>
@@ -24,26 +27,52 @@ export function ProductPage() {
   const category = catalog.categories.find((item) => item.key === product.categoryKey);
 
   return (
-    <div className="flex flex-col gap-4 p-4">
-      <img
-        src={productImageUrl(product, 'full')}
-        alt={product.name}
-        loading="lazy"
-        className="w-full rounded object-cover"
-      />
-      <h1 className="text-xl font-bold">{product.name}</h1>
-      <p className="text-lg font-semibold">
-        {formatMoney(product.priceCents, product.currency)}
-        {product.priceNote ? ` ${product.priceNote}` : ''}
-      </p>
-      {category ? (
-        <ProductAttributes
-          attributeSchema={category.attributeSchema}
-          attributes={product.attributes}
+    <div className="mx-auto max-w-3xl pb-36">
+      <div className="bg-gray-100">
+        <img
+          src={productImageUrl(product, 'full')}
+          alt={product.name}
+          decoding="async"
+          fetchPriority="high"
+          className="mx-auto aspect-square w-full max-w-xl object-cover"
         />
-      ) : null}
-      {product.description ? <p>{product.description}</p> : null}
-      <AddToCart slug={slug ?? ''} product={product} category={category} />
+      </div>
+
+      <div className="relative -mt-6 rounded-t-3xl bg-white px-4 pt-6">
+        {category ? (
+          <span className="text-[11px] font-semibold tracking-wide text-gray-500 uppercase">
+            {category.name}
+          </span>
+        ) : null}
+
+        <h1 className="mt-1.5 text-[22px] leading-tight font-bold tracking-tight text-gray-900">
+          {product.name}
+        </h1>
+
+        <div className="mt-2.5 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+          <p className="text-[26px] leading-none font-bold tracking-tight text-gray-900 tabular-nums">
+            {formatMoney(product.priceCents, product.currency)}
+          </p>
+          {product.priceNote ? (
+            <span className="text-sm text-gray-500">{product.priceNote}</span>
+          ) : null}
+        </div>
+
+        <AddToCart slug={slug ?? ''} product={product} category={category} />
+
+        {product.description ? (
+          <p className="mt-7 text-[15px] leading-relaxed whitespace-pre-line text-gray-600">
+            {product.description}
+          </p>
+        ) : null}
+
+        {category ? (
+          <ProductAttributes
+            attributeSchema={category.attributeSchema}
+            attributes={product.attributes}
+          />
+        ) : null}
+      </div>
     </div>
   );
 }

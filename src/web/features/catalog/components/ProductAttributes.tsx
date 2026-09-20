@@ -14,13 +14,18 @@ export function ProductAttributes({ attributeSchema, attributes }: ProductAttrib
   }
 
   return (
-    <dl className="grid grid-cols-2 gap-2">
-      {entries.map((def) => (
-        <div key={def.key}>
-          <dt className="text-sm text-gray-500">{def.label}</dt>
-          <dd className="font-medium">{formatAttributeValue(def, attributes[def.key])}</dd>
-        </div>
-      ))}
-    </dl>
+    <section className="mt-7">
+      <h2 className="text-sm font-semibold text-gray-900">Características</h2>
+      <dl className="mt-2.5 divide-y divide-gray-200/70 overflow-hidden rounded-2xl bg-gray-50">
+        {entries.map((def) => (
+          <div key={def.key} className="flex items-baseline justify-between gap-4 px-4 py-3">
+            <dt className="text-sm text-gray-500">{def.label}</dt>
+            <dd className="text-right text-sm font-semibold text-gray-900 tabular-nums">
+              {formatAttributeValue(def, attributes[def.key])}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </section>
   );
 }

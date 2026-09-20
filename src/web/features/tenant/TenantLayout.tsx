@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Outlet, useParams } from 'react-router';
+import { Link, Outlet, useLocation, useParams } from 'react-router';
 import { useCatalog } from '../catalog/hooks/useCatalog';
 import { TenantContext } from './tenant-context';
-import { brandStyle } from '../../shared/theme';
-import { Spinner } from '../../shared/components/Spinner';
+import { brandStyle, setThemeColor } from '../../shared/theme';
+import { CatalogSkeleton } from '../../shared/components/CatalogSkeleton';
+import { ChevronLeftIcon } from '../../shared/components/Icons';
 import { NotFoundPage } from './NotFoundPage';
 import { AgeGate } from '../catalog/components/AgeGate';
 import { CartButton } from '../cart/components/CartButton';
@@ -12,31 +13,36 @@ import { ageOkKey } from '../../shared/storage-keys';
 
 export function TenantLayout() {
   const { slug } = useParams<{ slug: string }>();
+  const location = useLocation();
   const catalog = useCatalog(slug ?? '');
   const [, forceRerender] = useState(0);
 
+  const tenant = catalog.status === 'ready' ? catalog.data.tenant : null;
+
   useEffect(() => {
-    if (catalog.status === 'ready') {
-      document.title = catalog.data.tenant.name;
+    if (tenant) {
+      document.title = tenant.name;
+      setThemeColor(tenant.primaryColor);
     }
-  }, [catalog]);
+  }, [tenant]);
 
   if (catalog.status === 'loading') {
-    return <Spinner />;
+    return <CatalogSkeleton />;
   }
 
   if (catalog.status === 'not-found') {
     return <NotFoundPage />;
   }
 
-  if (catalog.status === 'error') {
+  if (catalog.status === 'error' || !tenant) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-8 text-center">
-        <p>No pudimos cargar el catálogo</p>
+      <div className="flex min-h-dvh flex-col items-center justify-center gap-3 px-8 text-center">
+        <p className="text-base font-semibold">No pudimos cargar el catálogo</p>
+        <p className="text-sm text-gray-500">Revisá tu conexión e intentá de nuevo.</p>
         <button
           type="button"
           onClick={catalog.reload}
-          className="rounded bg-gray-800 px-4 py-2 text-white"
+          className="mt-2 rounded-full bg-gray-900 px-6 py-3 text-sm font-semibold text-white transition active:scale-[0.98]"
         >
           Reintentar
         </button>
@@ -44,7 +50,6 @@ export function TenantLayout() {
     );
   }
 
-  const { tenant } = catalog.data;
   const ageAccepted = slug ? safeGet(ageOkKey(slug)) === '1' : false;
 
   if (tenant.ageGate && !ageAccepted) {
@@ -61,16 +66,36 @@ export function TenantLayout() {
     );
   }
 
+  const catalogPath = `/${slug ?? ''}`;
+  const isCatalogRoot = location.pathname.replace(/\/+$/, '') === catalogPath;
+
   return (
-    <div style={brandStyle(tenant.primaryColor)}>
-      <header className="bg-brand text-brand-contrast flex items-center justify-between p-4">
-        <div className="flex items-center gap-2">
-          {tenant.logoUrl ? (
-            <img src={tenant.logoUrl} alt="" className="h-8 w-8 rounded object-cover" />
-          ) : null}
-          <h1 className="text-lg font-bold">{tenant.name}</h1>
+    <div style={brandStyle(tenant.primaryColor)} className="min-h-dvh bg-white">
+      <header className="bg-brand text-brand-contrast pt-safe sticky top-0 z-40 shadow-sm">
+        <div className="mx-auto flex h-14 max-w-3xl items-center gap-1 px-3">
+          {isCatalogRoot ? null : (
+            <Link
+              to={catalogPath}
+              aria-label="Volver"
+              className="-ml-1 grid h-11 w-11 shrink-0 place-items-center rounded-full transition active:scale-95 active:bg-black/10"
+            >
+              <ChevronLeftIcon className="h-6 w-6" />
+            </Link>
+          )}
+          <Link to={catalogPath} className="flex min-w-0 items-center gap-2.5 px-1">
+            {tenant.logoUrl ? (
+              <img
+                src={tenant.logoUrl}
+                alt=""
+                className="h-9 w-9 shrink-0 rounded-xl object-cover ring-1 ring-white/25"
+              />
+            ) : null}
+            <h1 className="truncate text-base font-semibold tracking-tight">{tenant.name}</h1>
+          </Link>
+          <div className="ml-auto shrink-0">
+            <CartButton slug={slug ?? ''} />
+          </div>
         </div>
-        <CartButton slug={slug ?? ''} />
       </header>
       <TenantContext.Provider value={{ catalog: catalog.data, reload: catalog.reload }}>
         <Outlet />

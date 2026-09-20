@@ -15,9 +15,11 @@ export function AgeGate({ primaryColor, tenantName, logoUrl, onAccept }: AgeGate
     return (
       <div
         style={brandStyle(primaryColor)}
-        className="bg-brand text-brand-contrast flex min-h-screen items-center justify-center p-8 text-center"
+        className="bg-brand text-brand-contrast flex min-h-dvh items-center justify-center px-8 text-center"
       >
-        <p>Lo sentimos, este catálogo es solo para mayores de 18 años.</p>
+        <p className="max-w-xs text-[15px] leading-relaxed">
+          Lo sentimos, este catálogo es solo para mayores de 18 años.
+        </p>
       </div>
     );
   }
@@ -25,25 +27,35 @@ export function AgeGate({ primaryColor, tenantName, logoUrl, onAccept }: AgeGate
   return (
     <div
       style={brandStyle(primaryColor)}
-      className="bg-brand text-brand-contrast flex min-h-screen flex-col items-center justify-center gap-6 p-8 text-center"
+      className="bg-brand text-brand-contrast pb-safe flex min-h-dvh flex-col items-center justify-center gap-6 px-6 text-center"
     >
-      <div className="flex items-center gap-2">
-        {logoUrl ? <img src={logoUrl} alt="" className="h-8 w-8 rounded object-cover" /> : null}
-        <span className="text-lg font-bold">{tenantName}</span>
+      <div className="flex flex-col items-center gap-3">
+        {logoUrl ? (
+          <img
+            src={logoUrl}
+            alt=""
+            className="h-16 w-16 rounded-2xl object-cover ring-1 ring-white/25"
+          />
+        ) : null}
+        <span className="text-xl font-bold tracking-tight">{tenantName}</span>
       </div>
-      <p className="text-lg">Este catálogo es solo para mayores de 18 años. ¿Sos mayor de edad?</p>
-      <div className="flex gap-4">
+
+      <p className="max-w-xs text-[15px] leading-relaxed opacity-90">
+        Este catálogo es solo para mayores de 18 años. ¿Sos mayor de edad?
+      </p>
+
+      <div className="flex w-full max-w-xs flex-col gap-2.5">
         <button
           type="button"
           onClick={onAccept}
-          className="rounded bg-white px-4 py-2 text-gray-900"
+          className="bg-brand-contrast text-brand rounded-full px-5 py-3.5 text-[15px] font-semibold transition active:scale-[0.98]"
         >
           Soy mayor de 18
         </button>
         <button
           type="button"
           onClick={() => setRejected(true)}
-          className="rounded border border-current px-4 py-2"
+          className="rounded-full border border-current px-5 py-3.5 text-[15px] font-semibold opacity-60 transition active:scale-[0.98]"
         >
           Soy menor de 18
         </button>

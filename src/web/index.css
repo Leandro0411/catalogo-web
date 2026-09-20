@@ -3,8 +3,46 @@
 @theme inline {
   --color-brand: var(--brand);
   --color-brand-contrast: var(--brand-contrast);
+
+  /* Derivados del color del tenant: se recalculan solos porque --brand se
+     hereda del contenedor que pinta brandStyle(). */
+  --color-brand-soft: color-mix(in srgb, var(--brand) 10%, white);
+  --color-brand-ink: color-mix(in srgb, var(--brand) 72%, black);
 }
 
-body {
-  @apply bg-white text-gray-900;
+:root {
+  --brand: #111827;
+  --brand-contrast: #ffffff;
+  color-scheme: light;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-white text-gray-900 antialiased;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: none;
+  }
+
+  /* En pantallas táctiles iOS hace zoom al enfocar un campo de menos de 16px. */
+  @media (pointer: coarse) {
+    input,
+    select,
+    textarea {
+      font-size: 16px;
+    }
+  }
+}
+
+/* Padding inferior que respeta la barra de gestos del teléfono. */
+@utility pb-safe {
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + var(--pb-safe-extra, 0.75rem));
+}
+
+/* Padding superior que respeta el notch cuando la web corre instalada. */
+@utility pt-safe {
+  padding-top: calc(env(safe-area-inset-top, 0px) + var(--pt-safe-extra, 0px));
 }
