@@ -28,13 +28,15 @@ export function ProductPage() {
 
   return (
     <div className="mx-auto max-w-3xl pb-36">
-      <div className="bg-gray-100">
+      {/* object-contain: la foto del producto se ve entera, sin recorte, sea cual
+          sea la proporcion con que la subio el negocio. */}
+      <div className="bg-gray-50">
         <img
           src={productImageUrl(product, 'full')}
           alt={product.name}
           decoding="async"
           fetchPriority="high"
-          className="mx-auto aspect-square w-full max-w-xl object-cover"
+          className="mx-auto aspect-[4/5] w-full max-w-xl object-contain"
         />
       </div>
 
