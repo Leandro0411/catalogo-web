@@ -58,7 +58,14 @@ export function emptyFormState(
   };
 }
 
-export function formStateFromProduct(product: AdminProduct): ProductFormState {
+export interface FormStateFromProductOptions {
+  duplicate?: boolean;
+}
+
+export function formStateFromProduct(
+  product: AdminProduct,
+  options: FormStateFromProductOptions = {},
+): ProductFormState {
   const attributes: Record<string, string> = {};
 
   for (const [key, value] of Object.entries(product.attributes)) {
@@ -74,7 +81,7 @@ export function formStateFromProduct(product: AdminProduct): ProductFormState {
     attributes,
     choices: product.choices,
     description: product.description ?? '',
-    status: product.status,
+    status: options.duplicate ? 'active' : product.status,
     stockMode: product.stockMode,
     stockQty: product.stockQty !== null ? String(product.stockQty) : '',
     imageKey: product.imageKey,

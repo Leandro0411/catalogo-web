@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router';
+import { useNavigate, useParams, useSearchParams } from 'react-router';
 import { ProductForm } from '../components/ProductForm';
 import { useAdmin } from '../admin-context';
 import { Spinner } from '../../../shared/components/Spinner';
@@ -13,16 +13,20 @@ type LoadState =
 
 export function ProductFormPage() {
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
+  const duplicateFromId = searchParams.get('from');
+  const isDuplicate = !id && duplicateFromId !== null;
   const navigate = useNavigate();
   const { me } = useAdmin();
   const [state, setState] = useState<LoadState>({ status: 'loading' });
 
   useEffect(() => {
     let cancelled = false;
+    const productIdToLoad = id ?? duplicateFromId ?? undefined;
 
     Promise.all([
       adminApi.listCategories(),
-      id ? adminApi.getProduct(id) : Promise.resolve(undefined),
+      productIdToLoad ? adminApi.getProduct(productIdToLoad) : Promise.resolve(undefined),
     ])
       .then(([categories, product]) => {
         if (!cancelled) {
@@ -38,7 +42,7 @@ export function ProductFormPage() {
     return () => {
       cancelled = true;
     };
-  }, [id]);
+  }, [id, duplicateFromId]);
 
   if (state.status === 'loading') {
     return <Spinner />;
@@ -49,8 +53,8 @@ export function ProductFormPage() {
   }
 
   const handleSubmit = async (input: ProductInput): Promise<void> => {
-    if (state.product) {
-      await adminApi.updateProduct(state.product.id, input);
+    if (id) {
+      await adminApi.updateProduct(id, input);
     } else {
       await adminApi.createProduct(input);
     }
@@ -59,12 +63,20 @@ export function ProductFormPage() {
   };
 
   return (
-    <ProductForm
-      categories={state.categories}
-      tenantCurrency={me.tenant.currency}
-      product={state.product}
-      onSubmit={handleSubmit}
-      onCancel={() => navigate('/admin')}
-    />
+    <>
+      {isDuplicate && state.product ? (
+        <p className="px-4 pt-4 text-sm text-blue-700">
+          Duplicando «{state.product.name}». Cambiá lo que corresponda y guardá.
+        </p>
+      ) : null}
+      <ProductForm
+        categories={state.categories}
+        tenantCurrency={me.tenant.currency}
+        product={state.product}
+        duplicate={isDuplicate}
+        onSubmit={handleSubmit}
+        onCancel={() => navigate('/admin')}
+      />
+    </>
   );
 }

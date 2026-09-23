@@ -209,6 +209,9 @@ function CartRow({ item, onQtyChange, onRemove }: CartRowProps) {
             {item.line.choice ? (
               <p className="mt-0.5 text-[13px] text-gray-500">{item.line.choice}</p>
             ) : null}
+            {item.product?.priceNote ? (
+              <p className="mt-0.5 text-[13px] text-gray-500">{item.product.priceNote}</p>
+            ) : null}
           </div>
           <button
             type="button"

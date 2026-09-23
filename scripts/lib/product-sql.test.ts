@@ -35,4 +35,25 @@ describe('buildProductInsertSql', () => {
     expect(sql).toContain('"puffs":30000');
     expect(sql).toContain('Grape / Strawberry Kiwi');
   });
+
+  it('usa NULL para stockQty y priceNote cuando no se especifican', () => {
+    const sql = buildProductInsertSql(theBlackSheep, 'fixed-id');
+
+    expect(sql).toContain('price_note');
+    expect(sql).toContain('stock_qty');
+    expect(sql).toMatch(/NULL,\s*'availability',\s*NULL/);
+  });
+
+  it('vuelca stockQty y priceNote cuando se especifican', () => {
+    const fundas: DevProductFixture = {
+      ...theBlackSheep,
+      stockMode: 'quantity',
+      stockQty: 8,
+      priceNote: '2x $16.000',
+    };
+    const sql = buildProductInsertSql(fundas, 'fixed-id');
+
+    expect(sql).toContain("'2x $16.000'");
+    expect(sql).toMatch(/'quantity',\s*8/);
+  });
 });

@@ -52,5 +52,150 @@
     "status": "active",
     "attributes": {},
     "choices": []
+  },
+  {
+    "tenantSlug": "miphone",
+    "categoryKey": "iphone",
+    "name": "iPhone 15 Pro Max 256GB (Natural) 87%",
+    "priceCents": 73500,
+    "currency": "USD",
+    "stockMode": "unit",
+    "status": "active",
+    "attributes": {
+      "modelo": "iPhone 15 Pro Max",
+      "capacidad": "256GB",
+      "color": "Natural",
+      "condicion": "Usado",
+      "bateria": 87
+    },
+    "choices": []
+  },
+  {
+    "tenantSlug": "miphone",
+    "categoryKey": "iphone",
+    "name": "iPhone 15 Pro 128GB (Black) 100%",
+    "priceCents": 66500,
+    "currency": "USD",
+    "stockMode": "unit",
+    "status": "active",
+    "attributes": {
+      "modelo": "iPhone 15 Pro",
+      "capacidad": "128GB",
+      "color": "Black",
+      "condicion": "Usado",
+      "bateria": 100
+    },
+    "choices": []
+  },
+  {
+    "tenantSlug": "miphone",
+    "categoryKey": "iphone",
+    "name": "iPhone 14 Pro 128GB (Black) 100% AS IS",
+    "priceCents": 57000,
+    "currency": "USD",
+    "stockMode": "unit",
+    "status": "active",
+    "attributes": {
+      "modelo": "iPhone 14 Pro",
+      "capacidad": "128GB",
+      "color": "Black",
+      "condicion": "AS IS",
+      "bateria": 100
+    },
+    "choices": []
+  },
+  {
+    "tenantSlug": "miphone",
+    "categoryKey": "iphone",
+    "name": "iPhone 14 128GB (Red) 100%",
+    "priceCents": 41000,
+    "currency": "USD",
+    "stockMode": "unit",
+    "status": "active",
+    "attributes": {
+      "modelo": "iPhone 14",
+      "capacidad": "128GB",
+      "color": "Red",
+      "condicion": "Usado",
+      "bateria": 100
+    },
+    "choices": []
+  },
+  {
+    "tenantSlug": "miphone",
+    "categoryKey": "iphone",
+    "name": "iPhone 13 128GB (Blue) 84%",
+    "priceCents": 38000,
+    "currency": "USD",
+    "stockMode": "unit",
+    "status": "active",
+    "attributes": {
+      "modelo": "iPhone 13",
+      "capacidad": "128GB",
+      "color": "Blue",
+      "condicion": "Usado",
+      "bateria": 84
+    },
+    "choices": []
+  },
+  {
+    "tenantSlug": "miphone",
+    "categoryKey": "iphone",
+    "name": "iPhone 17 256GB (Sage)",
+    "priceCents": 108000,
+    "currency": "USD",
+    "stockMode": "unit",
+    "status": "active",
+    "attributes": {
+      "modelo": "iPhone 17",
+      "capacidad": "256GB",
+      "color": "Sage",
+      "condicion": "Sellado"
+    },
+    "choices": []
+  },
+  {
+    "tenantSlug": "miphone",
+    "categoryKey": "macbook",
+    "name": "MacBook Air M3 13 16GB 512GB (Midnight)",
+    "priceCents": 129900,
+    "currency": "USD",
+    "stockMode": "quantity",
+    "stockQty": 2,
+    "status": "active",
+    "attributes": {
+      "modelo": "MacBook Air M3 13",
+      "chip": "M3",
+      "ram": "16GB",
+      "capacidad": "512GB",
+      "color": "Midnight",
+      "condicion": "Sellado"
+    },
+    "choices": []
+  },
+  {
+    "tenantSlug": "miphone",
+    "categoryKey": "accesorios",
+    "name": "Cargador completo certificado",
+    "priceCents": 2200000,
+    "currency": "ARS",
+    "stockMode": "quantity",
+    "stockQty": 5,
+    "status": "active",
+    "attributes": {},
+    "choices": []
+  },
+  {
+    "tenantSlug": "miphone",
+    "categoryKey": "accesorios",
+    "name": "Fundas Silicona case",
+    "priceCents": 1050000,
+    "currency": "ARS",
+    "priceNote": "2x $16.000",
+    "stockMode": "quantity",
+    "stockQty": 8,
+    "status": "active",
+    "attributes": {},
+    "choices": []
   }
 ]

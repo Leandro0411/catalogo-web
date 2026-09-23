@@ -136,6 +136,25 @@ describe('CartPage', () => {
     expect(screen.getByRole('button', { name: 'Enviar pedido por WhatsApp' })).toBeDisabled();
   });
 
+  it('muestra la nota de precio del producto bajo la línea', async () => {
+    const response = catalogResponse();
+    const body = await response.clone().json();
+    body.products[0].priceNote = '2x $16.000';
+    vi.mocked(fetch).mockImplementation(() =>
+      Promise.resolve(
+        new Response(JSON.stringify(body), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+      ),
+    );
+    setCartLines('tienda-nota', [{ productId: 'p1', choice: 'Grape / Strawberry Kiwi 🍇🍓🥝', qty: 1 }]);
+
+    renderCartAt('tienda-nota');
+
+    expect(await screen.findByText('2x $16.000')).toBeInTheDocument();
+  });
+
   it('marca una opción que ya no está disponible (E06)', async () => {
     setCartLines('tienda-e06', [{ productId: 'p1', choice: 'Sabor Inexistente', qty: 1 }]);
     vi.mocked(fetch).mockImplementation(() => Promise.resolve(catalogResponse()));

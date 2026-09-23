@@ -16,6 +16,7 @@ interface ProductListItemProps {
   onSell: (id: string) => void;
   onOpenSaleDialog: (product: AdminProduct) => void;
   onEdit: (id: string) => void;
+  onDuplicate: (id: string) => void;
   onDelete: (id: string) => void;
 }
 
@@ -25,6 +26,7 @@ export function ProductListItem({
   onSell,
   onOpenSaleDialog,
   onEdit,
+  onDuplicate,
   onDelete,
 }: ProductListItemProps) {
   const handleDelete = (): void => {
@@ -98,6 +100,13 @@ export function ProductListItem({
 
       <button type="button" onClick={() => onEdit(product.id)} className="text-sm underline">
         Editar
+      </button>
+      <button
+        type="button"
+        onClick={() => onDuplicate(product.id)}
+        className="text-sm underline"
+      >
+        Duplicar
       </button>
       <button type="button" onClick={handleDelete} className="text-sm text-red-600 underline">
         Eliminar

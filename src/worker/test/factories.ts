@@ -3,6 +3,7 @@ import { hashPassword } from '../../shared/crypto/password';
 import { newId } from '../lib/ids';
 import worker from '../index';
 import type { AdminUserRow, CategoryRow, ProductRow, TenantRow } from '../repositories/row.types';
+import type { TenantConfig } from '../../shared/types/tenant.types';
 
 export async function resetCatalogTables(db: D1Database): Promise<void> {
   await db.batch([
@@ -100,6 +101,39 @@ export async function insertCategory(
     .run();
 
   return row;
+}
+
+export async function insertTenantFromConfig(
+  db: D1Database,
+  config: TenantConfig,
+): Promise<{ tenant: TenantRow; categoriesByKey: Map<string, CategoryRow> }> {
+  const tenant = await insertTenant(db, {
+    slug: config.slug,
+    name: config.name,
+    primary_color: config.primaryColor,
+    whatsapp: config.whatsapp,
+    currency: config.currency,
+    age_gate: config.ageGate ? 1 : 0,
+    noindex: config.noindex ? 1 : 0,
+    is_active: config.isActive ? 1 : 0,
+  });
+
+  const categoriesByKey = new Map<string, CategoryRow>();
+
+  for (const category of config.categories) {
+    const row = await insertCategory(db, tenant.id, {
+      key: category.key,
+      name: category.name,
+      sort_order: category.sortOrder,
+      attribute_schema: JSON.stringify(category.attributeSchema),
+      choice_label: category.choiceLabel,
+      default_stock_mode: category.defaultStockMode,
+      default_currency: category.defaultCurrency,
+    });
+    categoriesByKey.set(category.key, row);
+  }
+
+  return { tenant, categoriesByKey };
 }
 
 export async function insertAdmin(

@@ -8,7 +8,9 @@ export interface DevProductFixture {
   name: string;
   priceCents: number;
   currency: Currency;
+  priceNote?: string | null;
   stockMode: StockMode;
+  stockQty?: number | null;
   status: ProductStatus;
   attributes: Record<string, string | number>;
   choices: Choice[];
@@ -25,7 +27,9 @@ export function buildProductInsertSql(fixture: DevProductFixture, id: string): s
     'name',
     'price_cents',
     'currency',
+    'price_note',
     'stock_mode',
+    'stock_qty',
     'status',
     'attributes',
     'choices',
@@ -37,7 +41,9 @@ export function buildProductInsertSql(fixture: DevProductFixture, id: string): s
     sqlValue(fixture.name),
     sqlValue(fixture.priceCents),
     sqlValue(fixture.currency),
+    sqlValue(fixture.priceNote ?? null),
     sqlValue(fixture.stockMode),
+    sqlValue(fixture.stockQty ?? null),
     sqlValue(fixture.status),
     sqlJson(fixture.attributes),
     sqlJson(fixture.choices),

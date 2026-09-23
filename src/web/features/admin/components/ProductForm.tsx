@@ -25,6 +25,7 @@ interface ProductFormProps {
   categories: AdminCategory[];
   tenantCurrency: Currency;
   product?: AdminProduct;
+  duplicate?: boolean;
   onSubmit: (input: ProductInput) => Promise<void>;
   onCancel: () => void;
 }
@@ -33,6 +34,7 @@ export function ProductForm({
   categories,
   tenantCurrency,
   product,
+  duplicate = false,
   onSubmit,
   onCancel,
 }: ProductFormProps) {
@@ -40,7 +42,9 @@ export function ProductForm({
     categories.find((item) => item.id === product?.categoryId) ?? categories[0];
 
   const [state, setState] = useState<ProductFormState>(() =>
-    product ? formStateFromProduct(product) : emptyFormState(initialCategory, tenantCurrency),
+    product
+      ? formStateFromProduct(product, { duplicate })
+      : emptyFormState(initialCategory, tenantCurrency),
   );
   const [errors, setErrors] = useState<ProductFormErrors>({});
   const [submitting, setSubmitting] = useState(false);

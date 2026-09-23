@@ -9,7 +9,7 @@ import { buildProductInsertSql, type DevProductFixture } from './lib/product-sql
 import { sqlValue } from './lib/sql';
 import { d1ExecuteFile } from './lib/wrangler';
 
-const SEED_TENANT_SLUGS = ['banned', 'demo'] as const;
+const SEED_TENANT_SLUGS = ['banned', 'demo', 'miphone'] as const;
 const PROJECT_ROOT = join(import.meta.dirname, '..');
 const DEV_PRODUCTS_FIXTURE_PATH = join(import.meta.dirname, 'fixtures', 'dev-products.json');
 

@@ -1,0 +1,140 @@
+{
+  "slug": "miphone",
+  "name": "miphone.mza",
+  "primaryColor": "#0A84FF",
+  "whatsapp": "5490000000002",
+  "currency": "USD",
+  "ageGate": false,
+  "noindex": false,
+  "categories": [
+    {
+      "key": "iphone",
+      "name": "iPhones",
+      "sortOrder": 0,
+      "defaultStockMode": "unit",
+      "defaultCurrency": "USD",
+      "attributeSchema": [
+        { "key": "modelo", "label": "Modelo", "type": "text", "required": true, "filter": "multi" },
+        {
+          "key": "capacidad",
+          "label": "Capacidad",
+          "type": "enum",
+          "options": ["64GB", "128GB", "256GB", "512GB", "1TB"],
+          "required": true,
+          "filter": "multi",
+          "showInCard": true
+        },
+        { "key": "color", "label": "Color", "type": "text", "showInCard": true },
+        {
+          "key": "condicion",
+          "label": "Estado",
+          "type": "enum",
+          "options": ["Sellado", "Usado", "AS IS"],
+          "required": true,
+          "filter": "multi",
+          "showInCard": true
+        },
+        {
+          "key": "bateria",
+          "label": "Batería",
+          "type": "number",
+          "unit": "%",
+          "filter": "min",
+          "showInCard": true
+        },
+        { "key": "ciclos", "label": "Ciclos", "type": "number" }
+      ]
+    },
+    {
+      "key": "macbook",
+      "name": "MacBooks",
+      "sortOrder": 1,
+      "defaultStockMode": "quantity",
+      "defaultCurrency": "USD",
+      "attributeSchema": [
+        { "key": "modelo", "label": "Modelo", "type": "text", "required": true, "filter": "multi" },
+        { "key": "chip", "label": "Chip", "type": "text", "showInCard": true },
+        {
+          "key": "ram",
+          "label": "RAM",
+          "type": "enum",
+          "options": ["8GB", "16GB", "24GB", "32GB"],
+          "showInCard": true
+        },
+        {
+          "key": "capacidad",
+          "label": "Almacenamiento",
+          "type": "enum",
+          "options": ["256GB", "512GB", "1TB", "2TB"],
+          "filter": "multi",
+          "showInCard": true
+        },
+        { "key": "color", "label": "Color", "type": "text" },
+        {
+          "key": "condicion",
+          "label": "Estado",
+          "type": "enum",
+          "options": ["Sellado", "Usado", "AS IS"],
+          "required": true,
+          "filter": "multi",
+          "showInCard": true
+        }
+      ]
+    },
+    {
+      "key": "ipad",
+      "name": "iPads",
+      "sortOrder": 2,
+      "defaultStockMode": "quantity",
+      "defaultCurrency": "USD",
+      "attributeSchema": [
+        { "key": "modelo", "label": "Modelo", "type": "text", "required": true, "filter": "multi" },
+        {
+          "key": "capacidad",
+          "label": "Capacidad",
+          "type": "enum",
+          "options": ["64GB", "128GB", "256GB", "512GB", "1TB"],
+          "filter": "multi",
+          "showInCard": true
+        },
+        { "key": "color", "label": "Color", "type": "text" },
+        {
+          "key": "condicion",
+          "label": "Estado",
+          "type": "enum",
+          "options": ["Sellado", "Usado", "AS IS"],
+          "required": true,
+          "filter": "multi",
+          "showInCard": true
+        }
+      ]
+    },
+    {
+      "key": "airpods",
+      "name": "AirPods",
+      "sortOrder": 3,
+      "defaultStockMode": "quantity",
+      "defaultCurrency": "USD",
+      "attributeSchema": [
+        { "key": "modelo", "label": "Modelo", "type": "text", "required": true, "filter": "multi" },
+        {
+          "key": "condicion",
+          "label": "Estado",
+          "type": "enum",
+          "options": ["Sellado", "Usado", "AS IS"],
+          "required": true,
+          "filter": "multi",
+          "showInCard": true
+        }
+      ]
+    },
+    {
+      "key": "accesorios",
+      "name": "Accesorios",
+      "sortOrder": 4,
+      "defaultStockMode": "quantity",
+      "defaultCurrency": "ARS",
+      "attributeSchema": []
+    }
+  ]
+}

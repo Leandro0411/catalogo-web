@@ -86,6 +86,7 @@ export function ProductsPage() {
                   onSell={(id) => registerSale(id, 1)}
                   onOpenSaleDialog={setSaleTarget}
                   onEdit={(id) => navigate(`productos/${id}`)}
+                  onDuplicate={(id) => navigate(`productos/nuevo?from=${id}`)}
                   onDelete={remove}
                 />
               ))}

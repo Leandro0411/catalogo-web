@@ -114,6 +114,50 @@ describe('buildOrderMessage + buildWhatsAppUrl', () => {
   });
 });
 
+describe('Apple AC05 — pedido con moneda mixta', () => {
+  it('arma el mensaje exacto con ref para la unidad y totales separados por moneda', () => {
+    const iphone: PublicProduct = {
+      id: 'ffffffff-1111-2222-3333-444444444444',
+      categoryKey: 'iphone',
+      name: 'iPhone 14 128 (Red) 100%',
+      description: null,
+      image: null,
+      priceCents: 41000,
+      currency: 'USD',
+      priceNote: null,
+      stockMode: 'unit',
+      stockQty: null,
+      attributes: {},
+      choices: [],
+    };
+    const cargador: PublicProduct = {
+      id: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
+      categoryKey: 'accesorios',
+      name: 'Cargador completo certificado',
+      description: null,
+      image: null,
+      priceCents: 2200000,
+      currency: 'ARS',
+      priceNote: null,
+      stockMode: 'quantity',
+      stockQty: 5,
+      attributes: {},
+      choices: [],
+    };
+
+    const summary = summaryOf([validItem(iphone, 1, null), validItem(cargador, 1, null)]);
+    const message = buildOrderMessage('miphone.mza', summary);
+
+    expect(message).toContain(
+      `• 1 x iPhone 14 128 (Red) 100% [ref ${productRef(iphone.id)}] — USD 410`,
+    );
+    expect(message).toContain('• 1 x Cargador completo certificado — $22.000');
+    expect(message).toContain('Total en pesos: $22.000');
+    expect(message).toContain('Total en USD: USD 410');
+    expect(message).not.toContain('Total: ');
+  });
+});
+
 describe('productRef', () => {
   it('toma los primeros 6 caracteres del UUID sin guiones, en mayúsculas', () => {
     expect(productRef('abcdef12-3456-7890-abcd-ef1234567890')).toBe('ABCDEF');
