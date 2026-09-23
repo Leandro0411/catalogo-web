@@ -66,6 +66,24 @@ Cambio de logo (PNG, JPG o WebP, máximo 300 KB; rechaza SVG):
 npm run tenant -- upsert tenants/<slug>.json --logo <ruta-del-archivo> --remote
 ```
 
+## Tenant miphone
+
+`https://catalogo.prestige1.workers.dev/miphone`. A diferencia de BANNED, es **indexable** (`noindex: false`) y **sin aviso +18** (`ageGate: false`) — no cambiar esos dos valores salvo pedido explícito del emprendedor.
+
+Alta o actualización de datos (incluye el logo la primera vez):
+
+```bash
+npm run tenant -- upsert tenants/miphone.json --logo <ruta-del-logo> --remote
+```
+
+Alta del administrador (guardar la contraseña impresa y entregarla al emprendedor por canal privado, junto con [docs/GUIA_CARGA_MIPHONE.md](GUIA_CARGA_MIPHONE.md)):
+
+```bash
+npm run admin -- create --tenant miphone --username <usuario> --remote
+```
+
+La carga del stock (~30-60 productos según la planilla vigente) la hace el emprendedor desde el panel, siguiendo la guía. `tenants/demo.json` no se aprovisiona en remoto: es solo para desarrollo local.
+
 ## Plan B de aislamiento (riesgo R02)
 
 Si una cuenta de Cloudflare queda comprometida, suspendida o inaccesible, el mismo código se puede desplegar en otra cuenta sin cambios:

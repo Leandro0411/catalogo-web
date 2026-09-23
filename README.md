@@ -77,4 +77,5 @@ Para operar el sistema ya desplegado (backups, restauración, rollback, alta de 
 
 ### URL pública
 
-_A completar por el desarrollador después del primer deploy_ (formato `https://catalogo.<subdominio>.workers.dev/banned`).
+- BANNED: `https://catalogo.prestige1.workers.dev/banned`
+- miphone.mza: `https://catalogo.prestige1.workers.dev/miphone`
