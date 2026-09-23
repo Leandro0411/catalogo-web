@@ -2,8 +2,11 @@ import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import { useAdminProducts } from '../hooks/useAdminProducts';
 import { ProductListItem } from '../components/ProductListItem';
+import { SaleDialog } from '../components/SaleDialog';
+import { Switch } from '../components/Switch';
 import { Spinner } from '../../../shared/components/Spinner';
 import { EmptyState } from '../../../shared/components/EmptyState';
+import type { AdminProduct } from '../../../../shared/types/api.types';
 
 const DIACRITICS_PATTERN = /[̀-ͯ]/g;
 
@@ -12,10 +15,12 @@ function normalizeSearch(text: string): string {
 }
 
 export function ProductsPage() {
-  const { state, toggleStatus, remove } = useAdminProducts();
+  const { state, toggleStatus, registerSale, remove } = useAdminProducts();
   const navigate = useNavigate();
   const location = useLocation();
   const [search, setSearch] = useState('');
+  const [showSold, setShowSold] = useState(false);
+  const [saleTarget, setSaleTarget] = useState<AdminProduct | null>(null);
   const successMessage = (location.state as { message?: string } | null)?.message;
 
   if (state.status === 'loading') {
@@ -28,9 +33,10 @@ export function ProductsPage() {
 
   const { categories, products } = state;
   const normalizedSearch = normalizeSearch(search);
-  const filtered = normalizedSearch
+  const bySearch = normalizedSearch
     ? products.filter((product) => normalizeSearch(product.name).includes(normalizedSearch))
     : products;
+  const filtered = showSold ? bySearch : bySearch.filter((product) => product.status !== 'sold');
 
   return (
     <div className="flex flex-col gap-4 p-4">
@@ -52,6 +58,11 @@ export function ProductsPage() {
         className="rounded border px-3 py-2"
       />
 
+      <div className="flex items-center gap-2">
+        <Switch checked={showSold} onChange={setShowSold} label="Mostrar vendidos" />
+        <span>Mostrar vendidos</span>
+      </div>
+
       {products.length === 0 ? (
         <EmptyState message="Todavía no cargaste productos" />
       ) : (
@@ -72,6 +83,8 @@ export function ProductsPage() {
                   key={product.id}
                   product={product}
                   onToggleStatus={toggleStatus}
+                  onSell={(id) => registerSale(id, 1)}
+                  onOpenSaleDialog={setSaleTarget}
                   onEdit={(id) => navigate(`productos/${id}`)}
                   onDelete={remove}
                 />
@@ -80,6 +93,18 @@ export function ProductsPage() {
           );
         })
       )}
+
+      {saleTarget ? (
+        <SaleDialog
+          productName={saleTarget.name}
+          maxQty={saleTarget.stockQty ?? 0}
+          onConfirm={async (qty) => {
+            await registerSale(saleTarget.id, qty);
+            setSaleTarget(null);
+          }}
+          onCancel={() => setSaleTarget(null)}
+        />
+      ) : null}
     </div>
   );
 }

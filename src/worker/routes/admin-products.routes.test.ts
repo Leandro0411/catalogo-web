@@ -5,7 +5,9 @@ import {
   insertAdmin,
   insertCategory,
   insertProduct,
+  insertQuantityProduct,
   insertTenant,
+  insertUnitProduct,
   loginAs,
   resetCatalogTables,
 } from '../test/factories';
@@ -20,6 +22,8 @@ interface ErrorBody {
 interface AdminProductBody {
   id: string;
   name: string;
+  status: string;
+  stockQty: number | null;
   hiddenReason: string | null;
 }
 
@@ -281,6 +285,177 @@ describe('admin-products.routes', () => {
       const ghost = body.find((p) => p.name === 'GHOST');
 
       expect(ghost?.hiddenReason).toBe('NO_CHOICES_AVAILABLE');
+    });
+  });
+
+  describe('registrar venta', () => {
+    it('venta de 2 sobre un producto por cantidad con stock 8 lo deja en 6 (Apple AC02)', async () => {
+      const { tenant, category, cookie } = await setupBannedAdmin();
+      const product = await insertQuantityProduct(env.DB, tenant.id, category.id, 8, {
+        name: 'Fundas Silicona case',
+      });
+
+      const response = await fetchApp(
+        `/api/admin/products/${product.id}/sale`,
+        jsonInit('POST', cookie, { qty: 2 }),
+      );
+      expect(response.status).toBe(200);
+      const body = (await response.json()) as AdminProductBody;
+      expect(body.stockQty).toBe(6);
+
+      const publicCatalog = (await (
+        await fetchApp('/api/public/tenants/banned/catalog')
+      ).json()) as { products: Array<{ name: string; stockQty: number | null }> };
+      const publicProduct = publicCatalog.products.find((p) => p.name === 'Fundas Silicona case');
+      expect(publicProduct?.stockQty).toBe(6);
+    });
+
+    it('marcar vendida una unidad la sacan del catálogo público (Apple AC04)', async () => {
+      const { tenant, category, cookie } = await setupBannedAdmin();
+      const product = await insertUnitProduct(env.DB, tenant.id, category.id, {
+        name: 'iPhone 17 256GB (Sage)',
+        price_cents: 1080000000,
+        currency: 'USD',
+      });
+
+      const response = await fetchApp(
+        `/api/admin/products/${product.id}/sale`,
+        jsonInit('POST', cookie, { qty: 1 }),
+      );
+      expect(response.status).toBe(200);
+      const body = (await response.json()) as AdminProductBody;
+      expect(body.status).toBe('sold');
+
+      const publicCatalog = (await (
+        await fetchApp('/api/public/tenants/banned/catalog')
+      ).json()) as { products: Array<{ name: string }> };
+      expect(publicCatalog.products.some((p) => p.name === 'iPhone 17 256GB (Sage)')).toBe(false);
+
+      const adminList = (await (
+        await fetchApp('/api/admin/products', { headers: { Cookie: cookie } })
+      ).json()) as AdminProductBody[];
+      const adminProduct = adminList.find((p) => p.id === product.id);
+      expect(adminProduct?.hiddenReason).toBe('SOLD');
+    });
+
+    it('agota el stock: la venta deja stockQty 0 y OUT_OF_STOCK en el admin', async () => {
+      const { tenant, category, cookie } = await setupBannedAdmin();
+      const product = await insertQuantityProduct(env.DB, tenant.id, category.id, 1);
+
+      const response = await fetchApp(
+        `/api/admin/products/${product.id}/sale`,
+        jsonInit('POST', cookie, { qty: 1 }),
+      );
+      expect(response.status).toBe(200);
+
+      const publicCatalog = (await (
+        await fetchApp('/api/public/tenants/banned/catalog')
+      ).json()) as { products: Array<{ name: string }> };
+      expect(publicCatalog.products.some((p) => p.name === product.name)).toBe(false);
+
+      const adminList = (await (
+        await fetchApp('/api/admin/products', { headers: { Cookie: cookie } })
+      ).json()) as AdminProductBody[];
+      const adminProduct = adminList.find((p) => p.id === product.id);
+      expect(adminProduct?.hiddenReason).toBe('OUT_OF_STOCK');
+    });
+
+    it('responde 409 INSUFFICIENT_STOCK si la venta supera el stock disponible (E15)', async () => {
+      const { tenant, category, cookie } = await setupBannedAdmin();
+      const product = await insertQuantityProduct(env.DB, tenant.id, category.id, 2);
+
+      const response = await fetchApp(
+        `/api/admin/products/${product.id}/sale`,
+        jsonInit('POST', cookie, { qty: 3 }),
+      );
+      expect(response.status).toBe(409);
+      const body = (await response.json()) as ErrorBody;
+      expect(body.error.code).toBe('INSUFFICIENT_STOCK');
+
+      const stillThere = await env.DB.prepare('SELECT stock_qty FROM products WHERE id = ?')
+        .bind(product.id)
+        .first<{ stock_qty: number }>();
+      expect(stillThere?.stock_qty).toBe(2);
+    });
+
+    it('con dos ventas simultáneas de 5 sobre stock 8 solo una tiene éxito (E15)', async () => {
+      const { tenant, category, cookie } = await setupBannedAdmin();
+      const product = await insertQuantityProduct(env.DB, tenant.id, category.id, 8);
+
+      const [first, second] = await Promise.all([
+        fetchApp(`/api/admin/products/${product.id}/sale`, jsonInit('POST', cookie, { qty: 5 })),
+        fetchApp(`/api/admin/products/${product.id}/sale`, jsonInit('POST', cookie, { qty: 5 })),
+      ]);
+      const statuses = [first.status, second.status].sort();
+      expect(statuses).toEqual([200, 409]);
+
+      const stillThere = await env.DB.prepare('SELECT stock_qty FROM products WHERE id = ?')
+        .bind(product.id)
+        .first<{ stock_qty: number }>();
+      expect(stillThere?.stock_qty).toBe(3);
+    });
+
+    it('rechaza una venta no aplicable (E16)', async () => {
+      const { tenant, category, cookie } = await setupBannedAdmin();
+
+      const unitProduct = await insertUnitProduct(env.DB, tenant.id, category.id);
+      const unitTwoResponse = await fetchApp(
+        `/api/admin/products/${unitProduct.id}/sale`,
+        jsonInit('POST', cookie, { qty: 2 }),
+      );
+      expect(unitTwoResponse.status).toBe(400);
+      expect(((await unitTwoResponse.json()) as ErrorBody).error.code).toBe('VALIDATION_ERROR');
+
+      const availabilityProduct = await insertProduct(env.DB, tenant.id, category.id, {
+        stock_mode: 'availability',
+        stock_qty: null,
+      });
+      const availabilityResponse = await fetchApp(
+        `/api/admin/products/${availabilityProduct.id}/sale`,
+        jsonInit('POST', cookie, { qty: 1 }),
+      );
+      expect(availabilityResponse.status).toBe(400);
+      expect(((await availabilityResponse.json()) as ErrorBody).error.code).toBe(
+        'SALE_NOT_SUPPORTED',
+      );
+
+      const soldUnit = await insertUnitProduct(env.DB, tenant.id, category.id, { status: 'sold' });
+      const soldResponse = await fetchApp(
+        `/api/admin/products/${soldUnit.id}/sale`,
+        jsonInit('POST', cookie, { qty: 1 }),
+      );
+      expect(soldResponse.status).toBe(409);
+      expect(((await soldResponse.json()) as ErrorBody).error.code).toBe('ALREADY_SOLD');
+    });
+
+    it('aisla las ventas por tenant y exige Origin (AC05)', async () => {
+      const { tenant: bannedTenant, category: bannedCategory, cookie } = await setupBannedAdmin();
+      const demoTenant = await insertTenant(env.DB, { slug: 'demo', name: 'Tienda Demo' });
+      const demoCategory = await insertCategory(env.DB, demoTenant.id, {
+        key: 'general',
+        name: 'General',
+        choice_label: null,
+      });
+      const demoProduct = await insertQuantityProduct(env.DB, demoTenant.id, demoCategory.id, 5);
+
+      const crossTenantResponse = await fetchApp(
+        `/api/admin/products/${demoProduct.id}/sale`,
+        jsonInit('POST', cookie, { qty: 1 }),
+      );
+      expect(crossTenantResponse.status).toBe(404);
+
+      const bannedProduct = await insertQuantityProduct(
+        env.DB,
+        bannedTenant.id,
+        bannedCategory.id,
+        5,
+      );
+      const noOriginResponse = await fetchApp(`/api/admin/products/${bannedProduct.id}/sale`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Cookie: cookie, Host: 'localhost' },
+        body: JSON.stringify({ qty: 1 }),
+      });
+      expect(noOriginResponse.status).toBe(403);
     });
   });
 });

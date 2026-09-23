@@ -110,6 +110,72 @@ describe('ProductsPage', () => {
     expect(await screen.findByText('No visible · Pausado')).toBeInTheDocument();
   });
 
+  it('"Registrar venta" con 2 actualiza el chip a "Stock: 6"', async () => {
+    const user = userEvent.setup();
+    const quantityProduct: AdminProduct = {
+      ...product,
+      id: 'p2',
+      name: 'Fundas Silicona case',
+      stockMode: 'quantity',
+      stockQty: 8,
+    };
+
+    vi.mocked(fetch).mockImplementation((input, init) => {
+      const url = urlOf(input);
+      if (url.includes('/categories')) {
+        return Promise.resolve(jsonResponse(200, [category]));
+      }
+      if (url.includes('/sale')) {
+        expect(init?.method).toBe('POST');
+        return Promise.resolve(jsonResponse(200, { ...quantityProduct, stockQty: 6 }));
+      }
+      return Promise.resolve(jsonResponse(200, [quantityProduct]));
+    });
+
+    renderProductsPage();
+
+    await user.click(await screen.findByText('Registrar venta'));
+    await user.clear(screen.getByLabelText('Cantidad'));
+    await user.type(screen.getByLabelText('Cantidad'), '2');
+    await user.click(screen.getByText('Registrar'));
+
+    expect(await screen.findByText('Stock: 6')).toBeInTheDocument();
+  });
+
+  it('"Vendido" muestra la insignia y, con "Mostrar vendidos" apagado, el ítem desaparece de la lista', async () => {
+    const user = userEvent.setup();
+    const unitProduct: AdminProduct = {
+      ...product,
+      id: 'p3',
+      name: 'iPhone 17 256GB (Sage)',
+      stockMode: 'unit',
+    };
+
+    vi.stubGlobal('confirm', vi.fn().mockReturnValue(true));
+    vi.mocked(fetch).mockImplementation((input) => {
+      const url = urlOf(input);
+      if (url.includes('/categories')) {
+        return Promise.resolve(jsonResponse(200, [category]));
+      }
+      if (url.includes('/sale')) {
+        return Promise.resolve(
+          jsonResponse(200, { ...unitProduct, status: 'sold', hiddenReason: 'SOLD' }),
+        );
+      }
+      return Promise.resolve(jsonResponse(200, [unitProduct]));
+    });
+
+    renderProductsPage();
+
+    await user.click(await screen.findByRole('switch', { name: 'Mostrar vendidos' }));
+    await user.click(await screen.findByText('Vendido'));
+
+    expect(await screen.findByText('No visible · Vendido')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('switch', { name: 'Mostrar vendidos' }));
+    expect(screen.queryByText('iPhone 17 256GB (Sage)')).not.toBeInTheDocument();
+  });
+
   it('ante un error del PATCH, el switch vuelve al estado anterior', async () => {
     const user = userEvent.setup();
     vi.mocked(fetch).mockImplementation((input) => {

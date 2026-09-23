@@ -105,6 +105,35 @@ export async function updateProduct(
     .run();
 }
 
+export async function registerQuantitySale(
+  db: D1Database,
+  tenantId: string,
+  id: string,
+  qty: number,
+): Promise<number> {
+  const result = await db
+    .prepare(
+      `UPDATE products SET stock_qty = stock_qty - ?1, updated_at = datetime('now')
+       WHERE id = ?2 AND tenant_id = ?3 AND stock_mode = 'quantity' AND stock_qty >= ?1`,
+    )
+    .bind(qty, id, tenantId)
+    .run();
+
+  return result.meta.rows_written;
+}
+
+export async function markUnitSold(db: D1Database, tenantId: string, id: string): Promise<number> {
+  const result = await db
+    .prepare(
+      `UPDATE products SET status = 'sold', updated_at = datetime('now')
+       WHERE id = ?1 AND tenant_id = ?2 AND stock_mode = 'unit' AND status <> 'sold'`,
+    )
+    .bind(id, tenantId)
+    .run();
+
+  return result.meta.rows_written;
+}
+
 export async function updateProductStatus(
   db: D1Database,
   tenantId: string,

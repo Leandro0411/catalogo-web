@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { emptyFormState, formStateFromProduct, toProductInput } from './product-form';
+import {
+  applyStockModeChange,
+  emptyFormState,
+  formStateFromProduct,
+  toProductInput,
+} from './product-form';
 import type { AdminCategory, AdminProduct } from '../../../../shared/types/api.types';
 
 const vapesCategory: AdminCategory = {
@@ -100,5 +105,49 @@ describe('toProductInput', () => {
     };
     const result = toProductInput(state, vapesCategory);
     expect(result).toEqual({ errors: { stockQty: 'Cantidad inválida' } });
+  });
+});
+
+describe('applyStockModeChange', () => {
+  it('vacía stockQty al salir de quantity', () => {
+    const state = { ...emptyFormState(vapesCategory, 'ARS'), stockMode: 'quantity' as const, stockQty: '5' };
+    const next = applyStockModeChange(state, 'availability');
+    expect(next.stockQty).toBe('');
+  });
+
+  it('pone stockQty en 1 al pasar a quantity si estaba vacío', () => {
+    const state = { ...emptyFormState(vapesCategory, 'ARS'), stockMode: 'availability' as const };
+    const next = applyStockModeChange(state, 'quantity');
+    expect(next.stockQty).toBe('1');
+  });
+
+  it('conserva stockQty al pasar a quantity si ya tenía un valor', () => {
+    const state = {
+      ...emptyFormState(vapesCategory, 'ARS'),
+      stockMode: 'unit' as const,
+      stockQty: '7',
+    };
+    const next = applyStockModeChange(state, 'quantity');
+    expect(next.stockQty).toBe('7');
+  });
+
+  it('al salir de unit, el estado sold pasa a paused', () => {
+    const state = {
+      ...emptyFormState(vapesCategory, 'ARS'),
+      stockMode: 'unit' as const,
+      status: 'sold' as const,
+    };
+    const next = applyStockModeChange(state, 'availability');
+    expect(next.status).toBe('paused');
+  });
+
+  it('no toca el estado si no estaba vendido al salir de unit', () => {
+    const state = {
+      ...emptyFormState(vapesCategory, 'ARS'),
+      stockMode: 'unit' as const,
+      status: 'active' as const,
+    };
+    const next = applyStockModeChange(state, 'availability');
+    expect(next.status).toBe('active');
   });
 });

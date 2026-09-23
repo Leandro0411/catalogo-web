@@ -13,6 +13,8 @@ const HIDDEN_REASON_LABELS: Record<HiddenReason, string> = {
 interface ProductListItemProps {
   product: AdminProduct;
   onToggleStatus: (id: string) => void;
+  onSell: (id: string) => void;
+  onOpenSaleDialog: (product: AdminProduct) => void;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
 }
@@ -20,6 +22,8 @@ interface ProductListItemProps {
 export function ProductListItem({
   product,
   onToggleStatus,
+  onSell,
+  onOpenSaleDialog,
   onEdit,
   onDelete,
 }: ProductListItemProps) {
@@ -28,6 +32,18 @@ export function ProductListItem({
       onDelete(product.id);
     }
   };
+
+  const handleSell = (): void => {
+    if (
+      window.confirm(
+        `¿Marcar "${product.name}" como vendido? Dejará de verse en el catálogo.`,
+      )
+    ) {
+      onSell(product.id);
+    }
+  };
+
+  const isSoldUnit = product.stockMode === 'unit' && product.status === 'sold';
 
   return (
     <div className="flex items-center gap-3 border-b py-3">
@@ -39,17 +55,47 @@ export function ProductListItem({
       <div className="min-w-0 flex-1">
         <p className="truncate font-semibold">{product.name}</p>
         <p className="text-sm text-gray-600">{formatMoney(product.priceCents, product.currency)}</p>
+        {product.stockMode === 'quantity' ? (
+          <p className="text-xs text-gray-500">Stock: {product.stockQty}</p>
+        ) : null}
         {product.hiddenReason ? (
           <span className="text-xs text-red-600">
             No visible · {HIDDEN_REASON_LABELS[product.hiddenReason]}
           </span>
         ) : null}
       </div>
-      <Switch
-        checked={product.status === 'active'}
-        onChange={() => onToggleStatus(product.id)}
-        label="Disponible"
-      />
+
+      {!isSoldUnit ? (
+        <Switch
+          checked={product.status === 'active'}
+          onChange={() => onToggleStatus(product.id)}
+          label="Disponible"
+        />
+      ) : null}
+
+      {product.stockMode === 'unit' && product.status === 'active' ? (
+        <button type="button" onClick={handleSell} className="text-sm underline">
+          Vendido
+        </button>
+      ) : null}
+
+      {isSoldUnit ? (
+        <button type="button" onClick={() => onToggleStatus(product.id)} className="text-sm underline">
+          Reactivar
+        </button>
+      ) : null}
+
+      {product.stockMode === 'quantity' ? (
+        <button
+          type="button"
+          onClick={() => onOpenSaleDialog(product)}
+          disabled={product.stockQty === 0}
+          className="text-sm underline disabled:opacity-40"
+        >
+          Registrar venta
+        </button>
+      ) : null}
+
       <button type="button" onClick={() => onEdit(product.id)} className="text-sm underline">
         Editar
       </button>

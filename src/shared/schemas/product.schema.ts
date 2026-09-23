@@ -7,10 +7,15 @@ const DESCRIPTION_MAX_LENGTH = 500;
 const PRICE_NOTE_MAX_LENGTH = 60;
 const MAX_PRICE_CENTS = 10 ** 12;
 const MAX_CHOICES = 50;
+const MAX_SALE_QTY = 999;
 const IMAGE_KEY_REGEX = /^t\/[0-9a-f-]{36}\/[0-9a-f-]{36}$/;
 
 export const statusInputSchema = z.object({
   status: z.enum(PRODUCT_STATUSES),
+});
+
+export const saleInputSchema = z.object({
+  qty: z.number().int().min(1).max(MAX_SALE_QTY),
 });
 
 export const productInputSchema = z

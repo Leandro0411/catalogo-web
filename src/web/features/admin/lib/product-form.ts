@@ -81,6 +81,17 @@ export function formStateFromProduct(product: AdminProduct): ProductFormState {
   };
 }
 
+export function applyStockModeChange(
+  state: ProductFormState,
+  nextMode: StockMode,
+): ProductFormState {
+  const stockQty = nextMode === 'quantity' ? (state.stockQty === '' ? '1' : state.stockQty) : '';
+  const leavesUnit = state.stockMode === 'unit' && nextMode !== 'unit';
+  const status = leavesUnit && state.status === 'sold' ? 'paused' : state.status;
+
+  return { ...state, stockMode: nextMode, stockQty, status };
+}
+
 export function toProductInput(
   state: ProductFormState,
   category: AdminCategory,

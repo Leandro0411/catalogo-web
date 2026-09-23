@@ -6,5 +6,9 @@
   "currency": "ARS",
   "ageGate": false,
   "noindex": true,
-  "categories": [{ "key": "general", "name": "General" }]
+  "categories": [
+    { "key": "general", "name": "General" },
+    { "key": "unidades", "name": "Unidades", "defaultStockMode": "unit", "defaultCurrency": "USD" },
+    { "key": "por-cantidad", "name": "Por cantidad", "defaultStockMode": "quantity" }
+  ]
 }

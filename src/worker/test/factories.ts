@@ -140,6 +140,33 @@ export async function insertAdmin(
   return row;
 }
 
+export async function insertUnitProduct(
+  db: D1Database,
+  tenantId: string,
+  categoryId: string,
+  overrides: Partial<Omit<ProductRow, 'id' | 'tenant_id' | 'category_id'>> = {},
+): Promise<ProductRow> {
+  return insertProduct(db, tenantId, categoryId, {
+    stock_mode: 'unit',
+    stock_qty: null,
+    ...overrides,
+  });
+}
+
+export async function insertQuantityProduct(
+  db: D1Database,
+  tenantId: string,
+  categoryId: string,
+  stockQty: number,
+  overrides: Partial<Omit<ProductRow, 'id' | 'tenant_id' | 'category_id'>> = {},
+): Promise<ProductRow> {
+  return insertProduct(db, tenantId, categoryId, {
+    stock_mode: 'quantity',
+    stock_qty: stockQty,
+    ...overrides,
+  });
+}
+
 const LOCAL_ORIGIN_HEADERS = { Origin: 'http://localhost', Host: 'localhost' };
 
 export async function loginAs(username: string, password: string): Promise<string> {

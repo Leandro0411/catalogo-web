@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { productInputSchema, statusInputSchema } from './product.schema';
+import { productInputSchema, saleInputSchema, statusInputSchema } from './product.schema';
 
 function validInput(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
@@ -89,5 +89,18 @@ describe('statusInputSchema', () => {
 
   it('rechaza un estado inválido', () => {
     expect(statusInputSchema.safeParse({ status: 'archived' }).success).toBe(false);
+  });
+});
+
+describe('saleInputSchema', () => {
+  it('acepta una cantidad entre 1 y 999', () => {
+    expect(saleInputSchema.safeParse({ qty: 1 }).success).toBe(true);
+    expect(saleInputSchema.safeParse({ qty: 999 }).success).toBe(true);
+  });
+
+  it('rechaza qty menor a 1, mayor a 999 o no entera', () => {
+    expect(saleInputSchema.safeParse({ qty: 0 }).success).toBe(false);
+    expect(saleInputSchema.safeParse({ qty: 1000 }).success).toBe(false);
+    expect(saleInputSchema.safeParse({ qty: 1.5 }).success).toBe(false);
   });
 });

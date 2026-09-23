@@ -59,6 +59,14 @@ export function setProductStatus(id: string, status: ProductStatus): Promise<Adm
   });
 }
 
+export function registerSale(id: string, qty: number): Promise<AdminProduct> {
+  return fetchJson<AdminProduct>(`/api/admin/products/${id}/sale`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ qty }),
+  });
+}
+
 export function deleteProduct(id: string): Promise<void> {
   return fetchJson<void>(`/api/admin/products/${id}`, { method: 'DELETE' });
 }

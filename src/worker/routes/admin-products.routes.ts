@@ -1,12 +1,17 @@
 import { Hono } from 'hono';
 import { requireAdmin } from '../middleware/require-admin';
 import { sameOrigin } from '../middleware/same-origin';
-import { productInputSchema, statusInputSchema } from '../../shared/schemas/product.schema';
+import {
+  productInputSchema,
+  saleInputSchema,
+  statusInputSchema,
+} from '../../shared/schemas/product.schema';
 import {
   createProduct,
   deleteProduct,
   getProduct,
   listProducts,
+  registerSale,
   setProductStatus,
   updateProduct,
 } from '../services/products.service';
@@ -67,6 +72,13 @@ adminProductsRoutes.patch('/products/:id/status', sameOrigin, async (c) => {
   const admin = c.get('admin');
   const { status } = statusInputSchema.parse(await c.req.json());
   const product = await setProductStatus(c.env.DB, admin.tenantId, c.req.param('id'), status);
+  return c.json(product);
+});
+
+adminProductsRoutes.post('/products/:id/sale', sameOrigin, async (c) => {
+  const admin = c.get('admin');
+  const { qty } = saleInputSchema.parse(await c.req.json());
+  const product = await registerSale(c.env.DB, admin.tenantId, c.req.param('id'), qty);
   return c.json(product);
 });
 

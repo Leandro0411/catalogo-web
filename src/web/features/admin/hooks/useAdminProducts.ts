@@ -10,6 +10,7 @@ type AdminProductsState =
 export interface UseAdminProductsResult {
   state: AdminProductsState;
   toggleStatus: (id: string) => Promise<void>;
+  registerSale: (id: string, qty: number) => Promise<void>;
   remove: (id: string) => Promise<void>;
   reload: () => void;
 }
@@ -79,6 +80,15 @@ export function useAdminProducts(): UseAdminProductsResult {
     [state],
   );
 
+  const registerSale = useCallback(async (id: string, qty: number) => {
+    const updated = await adminApi.registerSale(id, qty);
+    setState((prev) =>
+      prev.status === 'ready'
+        ? { ...prev, products: prev.products.map((product) => (product.id === id ? updated : product)) }
+        : prev,
+    );
+  }, []);
+
   const remove = useCallback(async (id: string) => {
     await adminApi.deleteProduct(id);
     setState((prev) =>
@@ -90,5 +100,5 @@ export function useAdminProducts(): UseAdminProductsResult {
 
   const reload = useCallback(() => setReloadToken((token) => token + 1), []);
 
-  return { state, toggleStatus, remove, reload };
+  return { state, toggleStatus, registerSale, remove, reload };
 }

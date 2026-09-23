@@ -1,11 +1,16 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { emptyFormState, formStateFromProduct, toProductInput } from '../lib/product-form';
+import {
+  applyStockModeChange,
+  emptyFormState,
+  formStateFromProduct,
+  toProductInput,
+} from '../lib/product-form';
 import type { ProductFormErrors, ProductFormState } from '../lib/product-form';
 import { AttributeField } from './AttributeField';
 import { ChoicesEditor } from './ChoicesEditor';
 import { ImagePicker } from './ImagePicker';
-import { Switch } from './Switch';
+import { StockFields } from './StockFields';
 import { HttpError } from '../../../api/http';
 import { CURRENCIES } from '../../../../shared/constants';
 import type { AdminCategory, AdminProduct, ProductInput } from '../../../../shared/types/api.types';
@@ -189,16 +194,15 @@ export function ProductForm({
         />
       </label>
 
-      <div className="flex items-center gap-2">
-        <Switch
-          checked={state.status === 'active'}
-          onChange={(checked) =>
-            setState((prev) => ({ ...prev, status: checked ? 'active' : 'paused' }))
-          }
-          label="Disponible"
-        />
-        <span>Disponible</span>
-      </div>
+      <StockFields
+        stockMode={state.stockMode}
+        stockQty={state.stockQty}
+        status={state.status}
+        onStockModeChange={(mode) => setState((prev) => applyStockModeChange(prev, mode))}
+        onStockQtyChange={(qty) => setState((prev) => ({ ...prev, stockQty: qty }))}
+        onStatusChange={(status) => setState((prev) => ({ ...prev, status }))}
+        error={errors.stockQty}
+      />
 
       <ImagePicker
         imageKey={state.imageKey}

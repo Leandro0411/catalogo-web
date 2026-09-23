@@ -7,6 +7,8 @@ import {
   findProductForTenant,
   insertProduct,
   listProductsByTenant,
+  markUnitSold,
+  registerQuantitySale,
   updateProduct as updateProductRow,
   updateProductStatus as updateProductStatusRow,
 } from '../repositories/products.repo';
@@ -210,6 +212,58 @@ export async function setProductStatus(
   await updateProductStatusRow(db, tenantId, id, status);
 
   const updatedRow: ProductRow = { ...existingRow, status, updated_at: new Date().toISOString() };
+
+  return toAdminProduct(parseProductRow(updatedRow), parseCategoryRow(categoryRow));
+}
+
+export async function registerSale(
+  db: D1Database,
+  tenantId: string,
+  id: string,
+  qty: number,
+): Promise<AdminProduct> {
+  const existingRow = await findProductForTenant(db, tenantId, id);
+
+  if (!existingRow) {
+    throw new ApiError(404, 'PRODUCT_NOT_FOUND', 'Producto no encontrado');
+  }
+
+  if (existingRow.stock_mode === 'availability') {
+    throw new ApiError(400, 'SALE_NOT_SUPPORTED', 'Este producto no lleva stock');
+  }
+
+  if (existingRow.stock_mode === 'unit') {
+    if (qty !== 1) {
+      throw new ApiError(400, 'VALIDATION_ERROR', 'Revisá los datos', {
+        qty: 'Una unidad se vende de una sola vez',
+      });
+    }
+
+    if (existingRow.status === 'sold') {
+      throw new ApiError(409, 'ALREADY_SOLD', 'La unidad ya está vendida');
+    }
+
+    const rowsAffected = await markUnitSold(db, tenantId, id);
+
+    if (rowsAffected === 0) {
+      throw new ApiError(409, 'ALREADY_SOLD', 'La unidad ya está vendida');
+    }
+  } else {
+    const rowsAffected = await registerQuantitySale(db, tenantId, id, qty);
+
+    if (rowsAffected === 0) {
+      throw new ApiError(409, 'INSUFFICIENT_STOCK', 'No hay stock suficiente', {
+        available: existingRow.stock_qty,
+      });
+    }
+  }
+
+  const updatedRow = await findProductForTenant(db, tenantId, id);
+  const categoryRow = await findCategoryForTenant(db, tenantId, existingRow.category_id);
+
+  if (!updatedRow || !categoryRow) {
+    throw new ApiError(404, 'PRODUCT_NOT_FOUND', 'Producto no encontrado');
+  }
 
   return toAdminProduct(parseProductRow(updatedRow), parseCategoryRow(categoryRow));
 }
