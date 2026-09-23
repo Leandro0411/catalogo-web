@@ -189,6 +189,156 @@ function miphoneCatalogResponse() {
   );
 }
 
+function miphoneWithFiltersCatalogResponse() {
+  return new Response(
+    JSON.stringify({
+      tenant: {
+        slug: 'miphone',
+        name: 'miphone.mza',
+        logoUrl: null,
+        primaryColor: '#0A84FF',
+        whatsapp: '5490000000002',
+        currency: 'USD',
+        ageGate: false,
+      },
+      categories: [
+        {
+          key: 'iphone',
+          name: 'iPhones',
+          sortOrder: 0,
+          attributeSchema: [
+            {
+              key: 'condicion',
+              label: 'Estado',
+              type: 'enum',
+              options: ['Sellado', 'Usado', 'AS IS'],
+              filter: 'multi',
+              showInCard: true,
+            },
+            {
+              key: 'bateria',
+              label: 'Batería',
+              type: 'number',
+              unit: '%',
+              filter: 'min',
+              showInCard: true,
+            },
+          ],
+          choiceLabel: null,
+        },
+        {
+          key: 'accesorios',
+          name: 'Accesorios',
+          sortOrder: 4,
+          attributeSchema: [],
+          choiceLabel: null,
+        },
+      ],
+      products: [
+        {
+          id: 'iphone-87',
+          categoryKey: 'iphone',
+          name: 'iPhone 15 Pro Max 256GB (Natural) 87%',
+          description: null,
+          image: null,
+          priceCents: 73500,
+          currency: 'USD',
+          priceNote: null,
+          stockMode: 'unit',
+          stockQty: null,
+          attributes: { condicion: 'Usado', bateria: 87 },
+          choices: [],
+        },
+        {
+          id: 'iphone-100',
+          categoryKey: 'iphone',
+          name: 'iPhone 15 Pro 128GB (Black) 100%',
+          description: null,
+          image: null,
+          priceCents: 66500,
+          currency: 'USD',
+          priceNote: null,
+          stockMode: 'unit',
+          stockQty: null,
+          attributes: { condicion: 'Usado', bateria: 100 },
+          choices: [],
+        },
+        {
+          id: 'iphone-100-asis',
+          categoryKey: 'iphone',
+          name: 'iPhone 14 Pro 128GB (Black) 100% AS IS',
+          description: null,
+          image: null,
+          priceCents: 57000,
+          currency: 'USD',
+          priceNote: null,
+          stockMode: 'unit',
+          stockQty: null,
+          attributes: { condicion: 'AS IS', bateria: 100 },
+          choices: [],
+        },
+        {
+          id: 'iphone-84',
+          categoryKey: 'iphone',
+          name: 'iPhone 13 128GB (Blue) 84%',
+          description: null,
+          image: null,
+          priceCents: 38000,
+          currency: 'USD',
+          priceNote: null,
+          stockMode: 'unit',
+          stockQty: null,
+          attributes: { condicion: 'Usado', bateria: 84 },
+          choices: [],
+        },
+        {
+          id: 'iphone-sellado',
+          categoryKey: 'iphone',
+          name: 'iPhone 17 256GB (Sage)',
+          description: null,
+          image: null,
+          priceCents: 108000,
+          currency: 'USD',
+          priceNote: null,
+          stockMode: 'unit',
+          stockQty: null,
+          attributes: { condicion: 'Sellado' },
+          choices: [],
+        },
+        {
+          id: 'iphone-white-96',
+          categoryKey: 'iphone',
+          name: 'iPhone 15 (White) 96%',
+          description: null,
+          image: null,
+          priceCents: 72000,
+          currency: 'USD',
+          priceNote: null,
+          stockMode: 'unit',
+          stockQty: null,
+          attributes: { condicion: 'Usado', bateria: 96 },
+          choices: [],
+        },
+        {
+          id: 'cargador',
+          categoryKey: 'accesorios',
+          name: 'Cargador completo certificado',
+          description: null,
+          image: null,
+          priceCents: 2200000,
+          currency: 'ARS',
+          priceNote: null,
+          stockMode: 'quantity',
+          stockQty: 5,
+          attributes: {},
+          choices: [],
+        },
+      ],
+    }),
+    { status: 200, headers: { 'Content-Type': 'application/json' } },
+  );
+}
+
 describe('CatalogPage', () => {
   beforeEach(() => {
     vi.stubGlobal('fetch', vi.fn());
@@ -322,5 +472,89 @@ describe('CatalogPage', () => {
     expect(screen.getByText('Usado')).toBeInTheDocument();
     expect(screen.getByText('87%')).toBeInTheDocument();
     expect(screen.getByText('USD 735')).toBeInTheDocument();
+  });
+
+  it('categoría iPhones + batería mín. 95% + precio máx. 700 deja solo dos productos (Apple AC03)', async () => {
+    const user = userEvent.setup();
+    vi.mocked(fetch).mockResolvedValue(miphoneWithFiltersCatalogResponse());
+
+    renderCatalogAt('miphone');
+
+    await user.click(await screen.findByRole('button', { name: 'iPhones' }));
+    await user.click(screen.getByRole('button', { name: /Filtros/ }));
+    await user.selectOptions(screen.getByLabelText('Batería'), '95');
+    await user.type(screen.getByLabelText('Precio máximo'), '700');
+    await user.click(screen.getByRole('button', { name: /Ver \d+ resultados/ }));
+
+    expect(screen.getByText('iPhone 15 Pro 128GB (Black) 100%')).toBeInTheDocument();
+    expect(screen.getByText('iPhone 14 Pro 128GB (Black) 100% AS IS')).toBeInTheDocument();
+    expect(screen.queryByText('iPhone 15 Pro Max 256GB (Natural) 87%')).not.toBeInTheDocument();
+    expect(screen.queryByText('iPhone 13 128GB (Blue) 84%')).not.toBeInTheDocument();
+    expect(screen.queryByText('iPhone 15 (White) 96%')).not.toBeInTheDocument();
+    expect(screen.queryByText('iPhone 17 256GB (Sage)')).not.toBeInTheDocument();
+  });
+
+  it('sin resultados muestra el mensaje y "Limpiar filtros" restaura el catálogo sin parámetros (E17)', async () => {
+    const user = userEvent.setup();
+    vi.mocked(fetch).mockResolvedValue(miphoneWithFiltersCatalogResponse());
+
+    const { router } = renderCatalogAt('miphone');
+
+    await user.click(await screen.findByRole('button', { name: 'iPhones' }));
+    await user.click(screen.getByRole('button', { name: /Filtros/ }));
+    await user.click(screen.getByRole('button', { name: 'Sellado' }));
+    await user.selectOptions(screen.getByLabelText('Batería'), '90');
+    await user.click(screen.getByRole('button', { name: /Ver \d+ resultados/ }));
+
+    expect(
+      await screen.findByText('No encontramos productos con esos filtros'),
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Limpiar filtros' }));
+
+    expect(await screen.findByText('Cargador completo certificado')).toBeInTheDocument();
+    expect(router.state.location.search).toBe('');
+  });
+
+  it('el precio máximo en USD excluye el producto en ARS (E18)', async () => {
+    const user = userEvent.setup();
+    vi.mocked(fetch).mockResolvedValue(miphoneWithFiltersCatalogResponse());
+
+    renderCatalogAt('miphone');
+
+    await screen.findByRole('button', { name: 'iPhones' });
+    await user.click(screen.getByRole('button', { name: /Filtros/ }));
+    await user.type(screen.getByLabelText('Precio máximo'), '700');
+    await user.click(screen.getByRole('button', { name: /Ver \d+ resultados/ }));
+
+    expect(screen.queryByText('Cargador completo certificado')).not.toBeInTheDocument();
+  });
+
+  it('visibilidad de controles: BANNED muestra buscador sin botón Filtros; miphone muestra ambos', async () => {
+    const bannedManyProducts = await bannedCatalogResponse().clone().json();
+    bannedManyProducts.products = Array.from({ length: 12 }, (_, index) => ({
+      ...bannedManyProducts.products[0],
+      id: `p${index}`,
+      name: `Producto ${index}`,
+    }));
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(JSON.stringify(bannedManyProducts), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    );
+
+    renderCatalogAt('banned');
+    await screen.findByRole('button', { name: /soy mayor de 18/i });
+    await userEvent.setup().click(screen.getByRole('button', { name: /soy mayor de 18/i }));
+
+    expect(await screen.findByLabelText('Buscar…')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Filtros/ })).not.toBeInTheDocument();
+
+    vi.mocked(fetch).mockResolvedValue(miphoneWithFiltersCatalogResponse());
+    renderCatalogAt('miphone');
+
+    expect(await screen.findByLabelText('Buscar…')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Filtros/ })).toBeInTheDocument();
   });
 });
